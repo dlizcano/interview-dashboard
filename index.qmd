@@ -1,0 +1,461 @@
+---
+title: "Amazon Rangers Dashboard"
+format: 
+  dashboard:
+    nav-buttons: [github]
+    github: https://github.com/dlizcano/interview-dashboard
+logo: images/logo.png
+theme: [sandstone, theme/custom.scss]
+fig-width: 10
+fig-asp: 0.3
+params:
+  month: "October"
+  year: "2023"
+  # 2021 rates: https://www.cdc.gov/nchs/data/nvsr/nvsr72/nvsr72-01.pdf
+  us_cesarean_rate: 0.321 
+  us_preterm_rate:  0.1049
+  threshold_diff: 0.02
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: load-packages
+#| message: false
+
+library(tidyverse)
+library(readxl)
+library(scales)
+library(DT)
+library(gt)
+library(tm)
+library(wordcloud2)
+library(tidytext)
+
+theme_set(theme_minimal(base_size = 24, base_family = "Atkinson Hyperlegible"))
+```
+
+```{r}
+#| label: load-data
+#| message: false
+
+ld <- read_excel("data/Amazonia(1-428).xlsx")
+ld_old <- read_excel("data/ld.xlsx")
+```
+
+```{r}
+#| label: set-inputs
+
+thecnical <- mean(
+  as.numeric(ld$`capacitaciónes técnicas`), na.rm = TRUE
+ )
+
+interpersonal <- mean(
+  as.numeric(ld$`capacitacion en blandas`), na.rm = TRUE
+ )
+
+
+```
+
+```{r}
+#| label: prep-data
+
+ld <- ld |>
+  mutate(Age=as.numeric(Edad)) |> 
+  mutate(Technical_Training=as.numeric(`capacitaciónes técnicas`)) |> 
+  mutate(SoftS_kills=as.numeric(`capacitacion en blandas`)) |> 
+  mutate(Service_years=as.numeric(`Años de servicio`)) |> 
+  mutate(Goverment_Agency=Agencia)
+
+service_yr_mean <- mean(ld$Service_years)
+
+docs <- Corpus(VectorSource(ld$`funciones y responsabilidades del cargo`))
+# Convertir a letras minúsculas el texto.
+docs <- tm_map(docs, content_transformer(tolower))
+# Remover números
+docs <- tm_map(docs, removeNumbers)
+# Remover stopwords comunes
+docs <- tm_map(docs, removeWords, stopwords("spanish"))
+# Remover una palabra en particular.
+# Se especifica las stopwords como un vector de caracteres.
+docs <- tm_map(docs, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+
+# remover signos de puntuación
+docs <- tm_map(docs, removePunctuation)
+# Eliminar espacios en blanco extras.
+docs <- tm_map(docs, stripWhitespace)
+
+#crear matriz documento de términos
+dtm <- TermDocumentMatrix(docs)
+matriz <- as.matrix(dtm)
+# ordenar filas de la matriz en orden descendente
+v <- sort(rowSums(matriz),decreasing=TRUE)
+# convertir a data frame
+d <- data.frame(word = names(v),freq=v)
+# mostrar los primeros 10 términos que más se repiten
+# head(d, 10)
+
+```
+
+#  {.sidebar}
+
+This dashboard displays statistics to better understand Amazon Rangers skills, identify areas for improvement, and potentially develop training programs.
+
+|              |   Average   |
+|--------------|---------------------|
+| **Service Years** |  `{r} round(service_yr_mean, 1)` |
+| **Technical training** | `{r} round(thecnical, 1)` |
+| **Interpersonal training** | `{r} round(interpersonal, 1)`   |
+
+------------------------------------------------------------------------
+
+Role and responsability
+
+ `{r} wordcloud2(data=d, size = 0.5)`
+
+------------------------------------------------------------------------
+
+::: {.callout-note collapse="true"}
+## Disclaimer
+
+The Data was anonymized. This initiative is part of the Amazon Sustainable Landscapes Program, funded by the Global Environment Facility (GEF) and led by the World Bank. 
+:::
+
+# All
+
+```{r}
+#| label: all-values
+#| results: hide
+
+n_respondants <- nrow(ld)
+
+n_Genero <- ld |>
+  count(Genero)  
+
+males <- n_Genero[2,2]
+females <- n_Genero[1,2]
+
+total <- sum(n_Genero$n)
+
+# p_cesarean_color <- case_when(
+#   between(p_cesarean, params$us_cesarean_rate, params$us_cesarean_rate + params$threshold_diff) ~ "warning",
+#   p_cesarean > params$us_cesarean_rate + params$threshold_diff ~ "danger",
+#   .default = "light"
+#   )
+# 
+# p_preterm <- ld |>
+#   count(term) |>
+#   mutate(p = n / sum(n)) |>
+#   filter(term == "Pre-term") |>
+#   pull(p)
+# 
+# p_preterm_color <- case_when(
+#   between(p_preterm, params$us_preterm_rate, params$us_preterm_rate + params$threshold_diff) ~ "warning",
+#   p_preterm > params$us_preterm_rate + params$threshold_diff ~ "danger",
+#   .default = "light"
+#   )
+
+```
+
+## Row {height="15%"}
+
+```{r}
+#| content: valuebox
+#| title: "Total respondant"
+
+list(
+  #icon = "person-bounding-box",
+  color = "primary",
+  value = n_respondants
+)
+```
+
+```{r}
+#| content: valuebox
+#| title: "Males"
+
+list(
+  #icon = "gender-male",
+  color =  "warning", # p_cesarean_color,
+  value = label_percent(accuracy = 1)(males$n/total)
+)
+```
+
+```{r}
+#| content: valuebox
+#| title: "Females"
+
+list(
+  #icon = "gender-female",
+  color = "warning", #p_preterm_color,
+  value = label_percent(accuracy = 1)(females$n/total)
+)
+```
+
+## Row {height="35%"}
+
+### Column {width="40%"}
+
+```{r}
+#| title: Countries
+
+ld |> count(Pais) |> 
+  mutate(prop = n / sum(n) *100) |> 
+  mutate(ypos = cumsum(prop)- 0.6*prop ) |> 
+
+  ggplot(aes(x="", y=prop, fill=Pais)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void() # remove background, grid, numeric labels
+  
+
+# ld |>
+#   count(delivery_method) |>
+#   mutate(p = n / sum(n)) |>
+#   gt() |>
+#   fmt_percent(
+#     columns = p,
+#     decimals = 1
+#   ) |>
+#   tab_style(
+#     style = cell_text(color = "#ae8b2d", weight = "bold"),
+#     locations = cells_body(
+#       columns = everything(),
+#       rows = delivery_method == "Cesarean"
+#     )
+#   ) |>
+#   tab_style(
+#     style = cell_text(color = "#0e2635", weight = "bold"),
+#     locations = cells_body(
+#       columns = everything(),
+#       rows = delivery_method == "Vaginal"
+#     )
+#   ) |>
+#   cols_label(
+#     delivery_method = "",
+#     n = "Number of<br>deliveries",
+#     p = "Proportion of<br>deliveries",
+#     .fn = md
+#   )
+
+```
+
+### Column {width="60%"}
+
+```{r}
+#| title: Ages
+
+
+ld |> group_by(Genero) |> 
+  #count(Edad) |>
+  #mutate(p = n / sum(n)) |>
+  ggplot( aes(x=Age, fill=Genero)) +
+  geom_histogram( alpha=0.7, position = 'identity', binwidth=1) +
+  # scale_fill_manual(values=c("#69b3a2", "#404080")) +
+  labs(x = NULL) # +
+  # scale_y_continuous(
+  #   "Count",
+  #   sec.axis = sec_axis(~ . / n_births, name = "Proportion", labels = label_percent())
+  # )
+```
+
+## Row {height="50%"}
+
+```{r}
+#| title: Relvance of the Skill Males
+
+ld |> filter(Genero=="Masculino") |> 
+  count(Relevance_of_the_skill, Skill_competency) |>
+  ggplot(aes(x = n, y = fct_rev(Relevance_of_the_skill), fill = Skill_competency)) +
+  geom_col(position = "fill", color = "white") +
+  scale_fill_manual(
+    values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+    guide = guide_legend(reverse = TRUE)
+  ) +
+  scale_x_continuous(labels = label_percent()) +
+  labs(y = NULL, x = NULL, fill = "Skill competency\nfor my role")
+```
+
+```{r}
+#| title: Relvance of the Skill Females
+
+# ld_old |>
+#   count(maternal_age, delivery_method) |>
+#   ggplot(aes(x = n, y = fct_rev(maternal_age), fill = delivery_method)) +
+#   geom_col(position = "fill", color = "white") +
+#   scale_fill_manual(
+#     values = c("#ae8b2d", "#0e2635"),
+#     guide = guide_legend(reverse = TRUE)
+#   ) +
+#   scale_x_continuous(labels = label_percent()) +
+#   labs(y = NULL, x = NULL)#, fill = "Delivery\nmethod")
+
+ld |> filter(Genero=="Femenino") |> 
+  count(Relevance_of_the_skill, Skill_competency) |>
+  ggplot(aes(x = n, y = fct_rev(Relevance_of_the_skill), fill = Skill_competency)) +
+  geom_col(position = "fill", color = "white") +
+  scale_fill_manual(
+    values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+    guide = guide_legend(reverse = TRUE)
+  ) +
+  scale_x_continuous(labels = label_percent()) +
+  labs(y = NULL, x = NULL, fill = "Skill competency\nfor my role")
+
+```
+
+
+# Colombia {orientation="columns"}
+
+## Column {width="60%"}
+
+```{r}
+#| label: vaginal-values
+#| results: hide
+
+ld_col <- ld |>
+  filter(Pais == "Colombia")
+
+n_respondants_co <- nrow(ld_col)
+
+n_Genero_col <- ld_col |>
+  count(Genero)  
+
+males_col <- n_Genero_col[2,2]
+females_col <- n_Genero_col[1,2]
+
+total_col <- sum(n_Genero_col$n)
+
+```
+
+### Row {height="20%"}
+
+```{r}
+#| component: valuebox
+#| title: "Males"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = label_percent(accuracy = 1)(males_col$n/total)
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: "Females"
+
+list(
+  # icon = "calendar-week",
+  color = "warning",
+  value = label_percent(accuracy = 0.1)(females_col$n/total)
+)
+```
+
+### Row {height="40%"}
+
+```{r}
+#| title: Protected Areas
+
+ld_col |> count(Protected_Area) |> 
+  mutate(prop = n / sum(n) *100) |> 
+  mutate(ypos = cumsum(prop)- 0.5*prop ) |> 
+
+  ggplot(aes(x="", y=prop, fill=Protected_Area)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void()
+
+```
+
+### Row {height="40%" .tabset}
+
+```{r}
+#| title: Relvance of the Skill Males
+
+ld_col |> filter(Genero=="Masculino") |> 
+  count(Relevance_of_the_skill, Skill_competency) |>
+  ggplot(aes(x = n, y = fct_rev(Relevance_of_the_skill), fill = Skill_competency)) +
+  geom_col(position = "fill", color = "white") +
+  scale_fill_manual(
+    values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+    guide = guide_legend(reverse = TRUE)
+  ) +
+  scale_x_continuous(labels = label_percent()) +
+  labs(y = NULL, x = NULL, fill = "Skill competency\nfor my role")
+```
+
+```{r}
+#| title: Relvance of the Skill Females
+
+ld_col |> filter(Genero=="Femenino") |> 
+  count(Relevance_of_the_skill, Skill_competency) |>
+  ggplot(aes(x = n, y = fct_rev(Relevance_of_the_skill), fill = Skill_competency)) +
+  geom_col(position = "fill", color = "white") +
+  scale_fill_manual(
+    values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+    guide = guide_legend(reverse = TRUE)
+  ) +
+  scale_x_continuous(labels = label_percent()) +
+  labs(y = NULL, x = NULL, fill = "Skill competency\nfor my role")
+```
+
+## Column {width="40%"}
+
+```{r}
+#| title: Needs
+
+docs_col <- Corpus(VectorSource(na.omit(ld_col$needs)))
+# Convertir a letras minúsculas el texto.
+docs_col <- tm_map(docs_col, content_transformer(tolower))
+# Remover números
+docs_col <- tm_map(docs_col, removeNumbers)
+# Remover stopwords comunes
+docs_col <- tm_map(docs_col, removeWords, stopwords("spanish"))
+# Remover una palabra en particular.
+# Se especifica las stopwords como un vector de caracteres.
+# docs_col <- tm_map(docs_col, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+
+# remover signos de puntuación
+# docs_col <- tm_map(docs_col, removePunctuation)
+# Eliminar espacios en blanco extras.
+docs_col <- tm_map(docs_col, stripWhitespace)
+
+a <- data.frame(text=sapply(docs_col, identity), 
+                        stringsAsFactors=F)
+
+b <- a |> unnest_tokens(output = sentence, 
+                        input = text, 
+                        token = "sentences")
+
+datatable(b)
+
+# #crear matriz documento de términos
+# dtm_col <- TermDocumentMatrix(docs_col)
+# matriz_col <- as.matrix(dtm_col)
+# # ordenar filas de la matriz en orden descendente
+# v_col <- sort(rowSums(matriz_col),decreasing=TRUE)
+# # convertir a data frame
+# d_col <- data.frame(word = names(v),freq=v)
+# # mostrar los primeros 10 términos que más se repiten
+# # head(d, 10)
+# wordcloud2(data=d_col, size = 0.5)
+#   
+```
+
+
+
+# Data
+
+```{r}
+ld |>  select(Edad, 
+                        Service_years,
+                        Agencia, 
+                        Genero,
+                        Pais,
+                        Relevance_of_the_skill,
+                        Skill_competency) |> 
+  datatable(
+    # colnames = c("ID", "Maternal age", "Delivery method", "Parity", "Term"),
+    options = list(dom = 'ftp', paging = TRUE)
+    )
+```
