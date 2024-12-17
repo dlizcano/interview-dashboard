@@ -1,2 +1,2 @@
-# interview-dashboard
-WCS interviews
+# ld-dash
+Labor and delivery dashboard built with Quarto
