@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.46">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Amazon Rangers Dashboard</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="index_files/libs/clipboard/clipboard.min.js"></script>
+<script src="index_files/libs/quarto-html/quarto.js"></script>
+<script src="index_files/libs/quarto-html/popper.min.js"></script>
+<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="index_files/libs/quarto-html/anchor.min.js"></script>
+<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="index_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="index_files/libs/quarto-dashboard/quarto-dashboard.js"></script>
+<script src="index_files/libs/quarto-dashboard/stickythead.js"></script>
+<script src="index_files/libs/quarto-dashboard/datatables.min.js" kdttablesentinel="true"></script>
+<script src="index_files/libs/quarto-dashboard/pdfmake.min.js" kdttablesentinel="true"></script>
+<script src="index_files/libs/quarto-dashboard/vfs_fonts.js" kdttablesentinel="true"></script>
+<script src="index_files/libs/quarto-dashboard/web-components.js" type="module"></script>
+<script src="index_files/libs/quarto-dashboard/components.js"></script>
+<link href="index_files/libs/quarto-dashboard/datatables.min.css" rel="stylesheet" kdttablesentinel="true">
+<link href="index_files/libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+
+<script src="index_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<link href="index_files/libs/wordcloud2-0.0.1/wordcloud.css" rel="stylesheet">
+
+<script src="index_files/libs/wordcloud2-0.0.1/wordcloud2-all.js"></script>
+
+<script src="index_files/libs/wordcloud2-0.0.1/hover.js"></script>
+
+<script src="index_files/libs/wordcloud2-binding-0.2.1/wordcloud2.js"></script>
+
+<link href="index_files/libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+
+<script src="index_files/libs/datatables-binding-0.33/datatables.js"></script>
+
+<script src="index_files/libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+
+<link href="index_files/libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+
+<link href="index_files/libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+
+<script src="index_files/libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+
+<link href="index_files/libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+
+<script src="index_files/libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+
+
+
+</head>
+
+<body class="quarto-dashboard dashboard-fill dashboard-sidebar fullcontent">
+
+<header id="quarto-dashboard-header">
+<nav class="navbar navbar-expand-md slim" data-bs-theme="dark">
+  <div class="navbar-container container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-controls="dashboard-collapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>    
+
+
+    <div class="navbar-brand-container">       
+    <a href="#"><img src="images/logo.png" alt="" class="navbar-logo d-inline-block"></a>
+      <div class="navbar-title">
+        <div class="navbar-title-text"><a href="#">Amazon Rangers Dashboard</a></div>
+        
+        
+      </div>
+    </div>
+<div id="dashboard-collapse" class="navbar-collapse collapse"><ul class="navbar-nav navbar-nav-scroll me-auto" role="tablist"><li class="nav-item" role="presentation"><a id="tab-all" class="nav-link active" data-bs-toggle="tab" role="tab" data-bs-target="#all" data-scrolling="false" href="#all" aria-controls="all" aria-selected="true"><span class="nav-link-text">All</span></a></li><li class="nav-item" role="presentation"><a id="tab-colombia" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#colombia" data-scrolling="false" href="#colombia" aria-controls="colombia" aria-selected="false"><span class="nav-link-text">Colombia</span></a></li><li class="nav-item" role="presentation"><a id="tab-data" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#data" data-scrolling="false" href="#data" aria-controls="data" aria-selected="false"><span class="nav-link-text">Data</span></a></li></ul></div></div>
+</nav>
+</header>
+<div class="page-layout-custom quarto-dashboard-content bslib-gap-spacing html-fill-container bslib-page-fill quarto-dashboard-pages dashboard-sidebar-container">  
+
+<div class="bslib-sidebar-layout html-fill-item html-fill-container" data-bslib-sidebar-open="desktop" data-bslib-sidebar-init="true" data-bslib-sidebar-border="false" data-bslib-sidebar-border-radius="false"><div class="main html-fill-container html-fill-item"><div class="sidebar-content html-fill-item html-fill-container">
+<div class="tab-content bslib-grid html-fill-item html-fill-container" style="display: grid; grid-template-columns: minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div id="all" class="dashboard-page tab-pane show active html-fill-item html-fill-container" data-orientation="rows" aria-labelledby="tab-all">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 15fr) minmax(3em, 35fr) minmax(3em, 50fr); grid-auto-columns: minmax(0, 1fr);">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr) minmax(3em, 1fr) minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-primary" data-bslib-card-init="" data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<div class="html-fill-item html-fill-container value-box-grid">
+<div class="value-box-area">
+<p class="value-box-title">
+Total respondant
+</p>
+<p class="value-box-value">
+427
+</p>
+</div>
+</div>
+</div>
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div><div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-warning" data-bslib-card-init="" data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<div class="html-fill-item html-fill-container value-box-grid">
+<div class="value-box-area">
+<p class="value-box-title">
+Males
+</p>
+<p class="value-box-value">
+81%
+</p>
+</div>
+</div>
+</div>
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div><div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-warning" data-bslib-card-init="" data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<div class="html-fill-item html-fill-container value-box-grid">
+<div class="value-box-area">
+<p class="value-box-title">
+Females
+</p>
+<p class="value-box-value">
+19%
+</p>
+</div>
+</div>
+</div>
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 40fr) minmax(3em, 60fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
+<div class="card cell html-fill-item html-fill-container bslib-card" data-title="Countries" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header"><div class="card-title html-fill-item html-fill-container">Countries</div></div>
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid quarto-dashboard-img-contain">
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div><div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
+<div class="card cell html-fill-item html-fill-container bslib-card" data-title="Ages" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header"><div class="card-title html-fill-item html-fill-container">Ages</div></div>
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<img src="index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid quarto-dashboard-img-contain">
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+</div>
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr) minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card cell html-fill-item html-fill-container bslib-card" data-title="Relvance of the Skill Males" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header"><div class="card-title html-fill-item html-fill-container">Relvance of the Skill Males</div></div>
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid quarto-dashboard-img-contain">
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div><div class="card cell html-fill-item html-fill-container bslib-card" data-title="Relvance of the Skill Females" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header"><div class="card-title html-fill-item html-fill-container">Relvance of the Skill Females</div></div>
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<img src="index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid quarto-dashboard-img-contain">
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+</div>
+</div><div id="colombia" class="dashboard-page tab-pane grid-skip html-fill-item html-fill-container" data-orientation="columns" aria-labelledby="tab-colombia">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 60fr) minmax(3em, 40fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 20fr) minmax(3em, 40fr) minmax(3em, 40fr); grid-auto-columns: minmax(0, 1fr);">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr) minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-primary" data-bslib-card-init="" data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<div class="html-fill-item html-fill-container value-box-grid">
+<div class="value-box-area">
+<p class="value-box-title">
+Males
+</p>
+<p class="value-box-value">
+13%
+</p>
+</div>
+</div>
+</div>
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div><div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-warning" data-bslib-card-init="" data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<div class="html-fill-item html-fill-container value-box-grid">
+<div class="value-box-area">
+<p class="value-box-title">
+Females
+</p>
+<p class="value-box-value">
+8.7%
+</p>
+</div>
+</div>
+</div>
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card cell html-fill-item html-fill-container bslib-card" data-title="Protected Areas" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header"><div class="card-title html-fill-item html-fill-container">Protected Areas</div></div>
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<img src="index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid quarto-dashboard-img-contain">
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+<div class="card tabset html-fill-item html-fill-container bslib-card" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header dashboard-card-no-title bslib-navs-card-title">
+
+<ul class="nav nav-tabs card-header-tabs" role="tablist" data-tabsetid="card-tabset-11"><li class="nav-item" role="presentation"><a href="#card-tabset-11-1" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Relvance of the Skill Males" aria-selected="true" class="nav-link active">Relvance of the Skill Males</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-11-2" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Relvance of the Skill Females" aria-selected="false" class="nav-link">Relvance of the Skill Females</a></li></ul></div>
+
+
+<div class="tab-content html-fill-item html-fill-container" data-tabset-id="card-tabset-11"><div class="tab-pane active show html-fill-item html-fill-container" role="tabpanel" id="card-tabset-11-1"><div class="card-body html-fill-item html-fill-container" data-title="Relvance of the Skill Males">
+<div class="cell-output-display html-fill-item html-fill-container">
+<img src="index_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid quarto-dashboard-img-contain">
+</div>
+</div></div><div class="tab-pane html-fill-item html-fill-container" role="tabpanel" id="card-tabset-11-2"><div class="card-body html-fill-item html-fill-container" data-title="Relvance of the Skill Females">
+<div class="cell-output-display html-fill-item html-fill-container">
+<img src="index_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid quarto-dashboard-img-contain">
+</div>
+</div></div></div><bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div><div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
+<div class="card cell html-fill-item html-fill-container bslib-card" data-title="Needs" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header"><div class="card-title html-fill-item html-fill-container">Needs</div></div>
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<div class="datatables html-widget html-fill-item html-fill-container" id="htmlwidget-d42760fa6ea2eed77e3a" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-d42760fa6ea2eed77e3a">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59"],["trabajo equipo, pensamiento crítico, creatividad, adaptabilidad, pensamiento estratégico","procesos sociales formación capacidades organizativas","derechos, comunidades comunicación. comunicación informa ideas. seguridad protección guardaparques.","actualizacion mas certificaciones manejo sig, plataformas gestion manejo produccion informacion certifican necesarias actualizacion hoja vida laboral.","ser paciente manejar situaciones complejas calma.","respeto cada autoridad étnica, ambiental. nivel técnico adquirido experiencia interlocutar pueblos indígenas.","temas rescate supervivencia guarda bosques rol campo.","relaciones interpersonales, resolucion conflictos capacitacion constante temas misionales interes derechos colectivos demas cargo cuenta entidad","habilidades blandas: resolución conflictos, identificación riesgos, trabajo bajo presiones externas, manejo situaciones riesgo habilidades técnicas: manejo herramientas localización gps, primeros auxilios, primeros auxilios psicológicos","fortalecimiento capacidades técnicas administrativas enmarcado proceso apv comunidades indígenas.","veo alguna habilidad adicional necesaria encuesta","capacitaciones mas puedan",".trabajo equipo . capacidad transmitir manera positiva, clara respetuosa mensaje junto capacidad escucha activa empatía favorece relaciones personales . uso equipo oficina ( conmutadores fotocopiadoras","comunicación asertiva equipo trabajo área protegida.","comunicación efectiva, responsabilidad, trabajo equipo, liderazgo, resolución conflictos.","responsabilidad, trabajo equipo, liderazgo.","pensamiento crítico, liderazgo, gestión cambio, atención detalle, resolución conflictos","derechos comunidades indígenas .","relaciones interinstitucionales gestión políticas conservación. relacionamiento organismos internacionales","considero recibir capacitación temas mencionados encuesta provechosos mejorar habilidades técnicas blandas aportan funciones desempeño,, sugiero capacitación temas,,, gracias.","concentracion inteligencia emocional","manejo sig -sistemas informacion geográfica aplicado medio ambiente.","manejo estres, trabajo bajo presión,","manejo nuevas tecnología sistemas, informáticas manejo herramientas smart","actualización ordenamiento territorial jurisdicción especial comunidades étnicas. capacitación relaciones humanas contextos culturales poblaciones étnicas.","construccion acuerdos diferencia","comunicación, resolución conflicto, liderazgo, comunicación, trabajo equipo","considero persona escucha facilidad, distancia pierden muchas capacitaciones pueden ser aprendizaje.","creatividad colaboración capacitación hamabilidad comunidades","términos liderazgo considero","ser paciente trabajar comunidades indígenas campesinos","manejo sistemas, planificación proyección.","liderazgo empatía","entendimiento acercamiento comunidades locales, convicción conservación recursos naturales entendiendo ecoturismo puede ser buena estrategia conservación","trabajo equipo, colaboracion, iniciativa, responsabilidad","manejo sistemas información inglés","gestión organizacional. seguridad protección guardaparques. comunicación información ideas.","normatividad ambiental vigente, relacionamiento campesinos grupos étnicos, manejo stres laboral, riesgo publico, instrumentos planeación, comunicación asertiva, relaciones interpersonales laborales.","comunicación, interpretación conocimiento zonas","comunicación asertiva, liderazgo, trabajo equipo, eficiencia eficiencia efectividad","capacitaciones manejos cómputo varios compañeros operarios llega saben utilizar herramientas.","trabajo social comunitario liderazgo trabajo campo comunicación","encaminado liderazgo pueblo indígena pertenezco","-competencia uso herramientas tecnológicas digitales crear materiales educativos recursos interactivos. - habilidad desarrollar enfoques innovadores atractivos enseñar motivar personas torno educación ambiental. -capacidad colaborar eficazmente compañeros ap, comunidades, instituciones educativas organizaciones.","elaboración instrumentos planeación enfoque diferencial comunidades campesinas indígenas procedimientos consulta previa, libre informada pueblos indígenas actualizar instrumento planeación.","trabajo equipo, comunicación, adaptabilidad responsabilidad.","cartografía gps: competencia uso herramientas cartografía sistemas posicionamiento global diseño mantenimiento rutas senderos ecoturísticos. primeros auxilios áreas remotas: formación primeros auxilios, especialmente contextos alejados, garantizar seguridad visitantes equipo. trabajo equipo: colaboración diferentes actores, incluidos profesionales comunidad local, lograr objetivos conservación desarrollo sostenible. adaptabilidad: flexibilidad adaptarse diferentes situaciones entornos, especialmente contexto natural cambiante parque nacional.","buena comunicándome comunidades, fácilmente, técnico desarrollo fácilmente word excel, organizar archivos demás","prevención, vigilancia control, manejo plataforma sico smart, análisis riesgo público plan emergencia contingencia desastres naturales socio-naturales, actividades bienestar, trabajo equipo resolución conflictos.","trabajo equipo comunidades personal institución, liderazgo responsabilidad, comunicativo, criterios constructivos, adaptabilidad ambientes labores equipos trabajo.","trabajo equipo, liderazgo","gestión organizacional liderazgo gestión auto motivación","manejo herramientas tecnológicas","manejo sig","capacidad resolver problemas adaptarse situaciones cambiantes","comunicación efectiva, liderazgo gestión equipos, trabajo equipo,","liderazgo, gestión conflictos, generación acuerdos.","considero importante necesidad sistemas información geográfica, talleres / capacitaciones cuanto riesgo publico (presencia grupos armados).","experiencia ejecución seguimiento planes programas. manejo herramientas ofimáticas. trabajo equipo, servicio cliente, comunicación asertiva, adaptabilidad, compromiso, honestidad, orden planificación."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>sentence<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"bPaginate":false,"dom":"ifrt","language":{"info":"Showing _TOTAL_ entries"},"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"sentence","targets":1}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+</div>
+</div><div id="data" class="dashboard-page tab-pane grid-skip html-fill-item html-fill-container" data-orientation="rows" aria-labelledby="tab-data">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
+<div class="card cell html-fill-item html-fill-container bslib-card" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<div class="datatables html-widget html-fill-item html-fill-container" id="htmlwidget-96fcaa55795e44f23181" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-96fcaa55795e44f23181">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181","182","183","184","185","186","187","188","189","190","191","192","193","194","195","196","197","198","199","200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299","300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399","400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","425","426","427"],["45","45","26","49","35","34","38","27","30","41","37","21","28","36","23","29","28","35","39","42","46","33","30","38","36","33","45","35","38","27","49","39","37","30","49","60","54","33","45","32","27","29","32","32","40","45","54","31","51","33","33","51","46","47","50","54","53","52","59","35","47","30","35","50","39","56","40","28","28","25","27","40","63","54","33","33","36","29","48","45","59","35","39","39","43","48","41","27","54","34","29","42","34","38","54","52","39","40","31","33","46","56","52","27","30","54","40","37","31","27","32","31","37","37","28","55","47","42","48","35","55","48","48","34","25","58","28","41","57","66","30","46","31","37","37","23","25","53","30","59","43","46","37","43","41","62","48","35","48","42","34","22","29","24","36","43","28","44","34","28","26","32","27","36","55","56","43","55","38","43","51","50","43","39","42","52","58","51","34","58","50","40","50","59","42","39","34","39","55","43","29","43","30","50","56","52","52","27","27","42","56","48","37","43","42","52","48","32","59","60","22","62","27","26","32","29","29","28","38","39","34","38","38","38","36","34","27","40","39","36","40","34","36","60","46","47","35","47","25","39","40","34","42","25","56","40","30","31","57","35","48","26","57","58","30","36","55","39","35","52","28","47","34","34","76","31","57","40","44","55","28","51","25","32","43","57","37","30","37","40","32","31","53","35","27","56","29","34","54","28","34","40","54","55","36","54","44","42","34","23","54","36","26","42","57","56","43","30","60","48","34","32","44","45","46","52","36","43","25","41","36","54","36","35","50","47","64","41","41","48","41","44","30","30","27","52","36","43","42","27","26","32","23","53","27","38","31","45","47","26","48","44","33","32","48","41","34","37","27","30","64","35","27","28","29","35","41","50","43","43","39","22","32","35","40","49","28","58","45","32","31","28","23","45","38","35","40","56","40","37","37","41","37","23","47","31","24","33","46","42","58","53","44","44","41","35","55","34","40","27","24","50","36","24","25","40","47","49","64","58","28","37","69","69","41","39","42"],[16,1,1,12,12,9,4,1,2,8,1,1,6,4,1,1,3,3,4,10,3,3,2,3,1,10,11,2,2,1,17,1,11,1,15,2,25,4,17,1,6,9,2,10,14,12,25,3,26,2,3,25,15,16,17,24,12,28,27,12,10,13,17,11,3,20,12,8,7,2,1,12,28,26,2,6,3,2,26,14,24,5,5,7,13,20,13,1,12,9,4,11,42,8,29,23,12,11,8,1,22,28,13,1,1,13,17,10,7,10,4,6,15,4,3,26,19,13,25,6,26,25,25,9,1,23,6,13,33,32,8,20,6,2,8,1,6,19,10,13,1,22,17,17,1,18,19,9,9,15,13,1,4,1,1,8,1,22,10,7,2,1,6,4,20,24,21,24,15,6,16,28,6,1,16,24,27,16,7,28,27,13,13,28,17,15,14,15,20,5,1,13,3,27,26,27,21,7,9,15,29,16,13,16,14,14,2,11,24,11,1,29,9,1,6,6,6,3,15,18,2,13,13,13,14,9,1,17,13,6,11,1,2,27,25,8,12,8,1,1,14,1,7,4,24,7,7,1,24,12,10,6,8,33,9,1,29,8,5,9,3,19,3,4,23,2,25,3,12,17,7,22,6,5,3,20,14,4,14,13,5,10,18,9,2,12,8,13,28,5,14,6,11,20,11,11,7,12,10,5,54,7,5,9,25,13,16,10,15,12,8,5,8,15,2,8,10,12,2,18,2,33,7,21,13,6,13,9,9,15,9,15,10,3,7,14,10,20,13,2,6,4,1,9,3,13,1,14,9,1,28,1,2,1,4,3,1,8,6,9,13,14,1,4,3,8,1,13,7,8,1,1,1,13,7,14,1,4,12,2,1,2,1,20,7,4,16,1,1,13,4,7,1,4,2,3,4,1,19,10,25,14,4,8,13,14,18,13,10,8,1,18,10,2,2,8,6,15,13,30,5,6,23,23,17,20,13],["Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Ministerio de Ambiente, Agua y Transición Ecológica","SERNAP","SERNAP","SERNANP","SERNAP","SERNANP","SERNANP","SERNANP","SERNANP","SERNANP","SERNANP","SERNANP","SERNANP","SERNANP","SERNANP","Secretaria Estadual do Meio Ambiente","SERNANP","Parques Nacionales Naturales de Colombia","SERNANP","SERNANP","SERNANP","SERNANP","SERNAP","SERNAP","SERNAP","SERNAP","SERNANP","SERNAP","SERNAP","SERNAP","SERNANP","SERNAP","SERNAP","SERNANP","Estado","Servicio Naciuna de ares protegedas","MMYA SERNAP TARIQUIA","Parques Nacionales Naturales de Colombia","SERNAP","Sernap Apolobamba","SERNAP","Sernap","Secretaria do Meio ambiente e sustentabilidade","Sernap","SERNAP","SERNAP","SERNANP","Sernap","Servicio Nacional de Áreas Protegidas","Sernap","SERNANP","SERNAP","Sernap","Parques Nacionales Naturales de Colombia","MM YA SERNAP TARIQUIA","SERNAP","SERNANP","Servicio nacional de áreas protegidas -sernap","SERNANP","Sernap","SERNANP","Servicio Nacional de Áreas protegidas (SERNAP)","SERNANP","SERNANP","SERNANP","SERNANP","Servicio Nacional de Áreas Protegidas","SERNAP","Proteger la flora la fauna recursos hídricos y en general de toda la biota","SERNANP","RB-EBB","Sernap","Sernap","SERNAP","Sernap","SERNAP","Parques Nacionales Naturales de Colombia","SERNAP","Servicio Nacional de Áreas Protegidas","SERVICIO NACIONAL DE AREAS PROTEGIDAS","SERNAP","Servicio Nacional de Áreas Protegidas (SERNAP)","Servicio Nacional de Áreas Protegidas(SERNAP)","Servicio Nacional de Áreas Protegidas","SERNANP","SERNANP","PN-ANMI Aguarague (SERNAP)","Ministerio de medio ambiente y agua - sernap","SERNANP","Guadarparque voluntario","Sernap","SERNAP","SERNAP","SERNANP","Sernap","SERNANP","SERNAP","SERNANP","SERNANP","Dependiente del Ministerio de Medio Ambiente y Agua - SERNAP","SERNANP","SERNAP","Dependiente de Ministerio de Medio Ambiente y Agua - SENAP","SERNAP","SERNANP","SERNANP","Sernap","SERNANP","SERNANP","SERNAP","SERNAP","SERNANP","SERNANP","SERNANP","SERNANP","SERNANP","Parques Nacionales Naturales de Colombia","SERNANP","SERNANP","SERNANP","SERNANP","SERNANP","SERNANP","Servicio nacional de areas protegidas","Servicio nacional de areas protegidas","SERNANP","SERNANP","Servicio Nacional de Areas Protegidas - SERNAP","Ministerio de medio ambiente y agua","UNIDAD CENTRAL SERNAP","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","SERNAP","Servicio Nacional de Areas Protegidas","Ministerio de Ambiente, Agua y Transición Ecológica","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","SERNANP","SERNAP AMBORO","Ministerio de Ambiente, Agua y Transición Ecológica","SERNANP","SERNANP","SERNANP","SERNANP","Servicio Nacional de Áreas Protegidas (Sernap)","SERNAP","SERNAP","Servicio Nacional de Áreas Protegidas","Servicio Nacional de Areas Protegidas-SERNAP","SERNANP","SERNANP","SERNANP","Servicio Nacional de Areas Protegidas-SERNAP","SERNANP","Parques Nacionales Naturales de Colombia","SERNANP","Servicio Nacional de Areas Protegidas-SERNAP","Servicio Nacional de Areas Protegidas-SERNAP","SERNANP","SERNANP","SERNAP","Servicio Nacional de Areas Protegidas-SERNAP","SERNANP","Servicio Nacional de Areas Protegidas-SERNAP","Servicio Nacional de Areas Protegidas","Servicio Nacional de Áreas Protegidas","Servicio Nacional de Áreas Protegidas","Servicio Nacional de Areas Protegidas-SERNAP","SERNAP","Sernap","Sernap","Servicio Nacional de Áreas Protegidas","SERNAP Bolivia","SERNANP","SERNAP Servicio Nacional de Áreas Protegidas","Servicio Nacional de Areas Protegidas SERNAP","Sernap","Servicio Nacional de Áreas Protegidas (SERNAP)","SERNANP","SERNANP","Servicio Nacional de Áreas Protegidas - Sernap.","SERNAP","SERNAP = MMA y A","Servicio Nacional de Areas Protegidas-SERNAP","SERNANP","Servicio Nacional de Areas Protegidas-SERNAP","SERNANP","SERNANP","Servicio Nacional de Areas Protegidas-SERNAP","Servicio Nacional de Areas Protegidas-SERNAP","Servicio Nacional de Areas Protegidas-SERNAP","Servicio Nacional de Areas Protegidas-SERNAP","Servicio Nacional de Areas Protegidas-SERNAP","SERNANP","SERNANP","SERNANP","Servicio Nacional de Areas Protegidas-SERNAP","SERNANP","SERNANP","SERNANP","ecosira socio del sernanp - minan","Sernap","Sernap","Sernap","Sernap","SERNAP","Servicio nacional de áreas protegidas","SERNANP","Servicio nacional de áreas protegidas","SERNAP","MMYA -SERNAP","SERNAP - TIPNIS","SERNAP","MMAYA","SERNAP parque nacional Sajama","Servicio Nacional de Áreas protegidas","Sernap- Servicios Nacional de Areas Protegidas","SERNAP","Sernap-","SERNANP","SERNAP","Sernap","SERVICIO NACIONAL DE AREAS PROTEGIDAS - PARQUE NACIONAL TUNARI","Parques Nacionales Naturales de Colombia","SERNAP","Servicio Nacional de Áreas protegidas","SSERNAP_SAMA","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","SERNAP","Servicio Nacional de Áreas protegida","Sernap","Sernap","Parques Nacionales Naturales de Colombia","Servicio Nacional de Áreas Protegidas - SERNAP.","Servicio Nacional de Areas Protegidas Parque Nacional Tunari","SERNAP","Servicio Nacional de Áreas protegidas","Parques Nacionales Naturales de Colombia","SERNANP","SERNAP","Servicio Nacional de Áreas Protegidas","Servicio Nacional de Áreas Protegidas","SERNAP","Servicio Nacional de Áreas Protegidas","Servicio nacional de áreas protegidas","Servicio nacional de área protegida","Sernap _ pntt.","SERNANP","Servicio nacional de áreas protegidas","SERNAP","Sernap","Reserva Biologica de la Cordillera de Sama  - SERNAP","Servicio Nacional de Áreas Protegidas","SERNANP","Sernap","SERNANP","SERNAP","Parques Nacionales Naturales de Colombia","SERNAP","Secretaria de infraestrutura e meio ambiente","SERNANP","Sernap","SERNANP","SERNANP","SERNANP","SERNANP","Servicio Nacional de Areas Protegidas","SERNAP-PARQUE NACIONAL TUNARI","Servicio nacional de áreas protegidas SERNAP","SERNANP","SERNAP -APOLOBAMBA","SERNANP","Sernap","SERNANP","Sernap otuquis","Sernap","SERNANP","Parques Nacionales Naturales de Colombia","Sernap-otuquis","SERNANP","Sernap","SERNANP","SERNANP","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","PROGRAMA DE REPARACION AMBIENTAL Y SOCIAL -PRAS","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","PNY","Ministerio del ambiente","DAPOFC","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio del Ambiente","Ministerio de Ambiente, Agua y Transición Ecológica","Dirección de áreas protegidas y otras formas de conversación","SERNANP","SERNANP","SERNANP","SERNANP","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Apoyo Parque Nacional Natural Serranía de Chiribiquete - Legacy Landscape F","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Patrimonio Natural","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","parques nacionales naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio del Ambiente","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio del Ambiente","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente","Ministerio del Ambiente","Ministerio de Ambiente, Agua y Transición Ecológica","PNN SCHAW - DTAM","Parques Nacionales Naturales de Colombia","Ministerio de Ambiente, Agua y Transición Ecológica","Ministerio de Ambiente, Agua y Transición Ecológica","Parques Nacionales Naturales de Colombia","Parques Nacionales Naturales de Colombia","Ministerio de Ambiente, Agua y Transición Ecológica"],["Masculino","Masculino","Femenino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Femenino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Femenino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Femenino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Femenino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Femenino","Femenino","Masculino","Femenino","Masculino","Femenino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Femenino","Femenino","Femenino","Masculino","Femenino","Femenino","Masculino","Masculino","Femenino","Masculino","Masculino","Femenino","Masculino","Femenino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Femenino","Femenino","Femenino","Masculino","Femenino","Femenino","Femenino","Masculino","Masculino","Femenino","Masculino","Masculino","Femenino","Masculino","Femenino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Femenino","Masculino","Masculino","Femenino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Femenino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Masculino","Femenino","Masculino","Masculino","Femenino","Femenino","Masculino"],["Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Ecuador","Bolivia","Bolivia","Perú","Bolivia","Perú","Perú","Perú","Perú","Perú","Perú","Perú","Perú","Perú","Perú","Brasil","Perú","Colombia","Perú","Perú","Perú","Perú","Bolivia","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Bolivia","Perú","Bolivia","Bolivia","Bolivia","Colombia","Bolivia","Bolivia","Bolivia","Bolivia","Brasil","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Bolivia","Colombia","Bolivia","Bolivia","Perú","Bolivia","Perú","Bolivia","Perú","Bolivia","Perú","Perú","Perú","Perú","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Colombia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Perú","Perú","Bolivia","Bolivia","Perú","Perú","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Perú","Bolivia","Perú","Perú","Bolivia","Perú","Bolivia","Bolivia","Bolivia","Perú","Perú","Bolivia","Perú","Perú","Bolivia","Bolivia","Perú","Perú","Perú","Perú","Perú","Colombia","Perú","Perú","Perú","Perú","Perú","Perú","Bolivia","Bolivia","Perú","Perú","Bolivia","Bolivia","Bolivia","Ecuador","Ecuador","Bolivia","Bolivia","Ecuador","Colombia","Colombia","Perú","Bolivia","Ecuador","Perú","Perú","Perú","Perú","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Perú","Perú","Perú","Bolivia","Perú","Colombia","Perú","Bolivia","Bolivia","Perú","Perú","Bolivia","Bolivia","Perú","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Bolivia","Bolivia","Bolivia","Perú","Perú","Bolivia","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Perú","Perú","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Perú","Perú","Perú","Bolivia","Perú","Perú","Perú","Perú","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Bolivia","Bolivia","Colombia","Bolivia","Bolivia","Bolivia","Colombia","Colombia","Bolivia","Bolivia","Bolivia","Bolivia","Colombia","Bolivia","Bolivia","Bolivia","Bolivia","Colombia","Perú","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Bolivia","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Perú","Bolivia","Colombia","Bolivia","Brasil","Perú","Bolivia","Perú","Perú","Perú","Perú","Bolivia","Bolivia","Bolivia","Perú","Bolivia","Perú","Bolivia","Perú","Bolivia","Bolivia","Perú","Colombia","Bolivia","Perú","Bolivia","Perú","Perú","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Perú","Perú","Perú","Perú","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Ecuador","Ecuador","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Colombia","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Ecuador","Colombia","Colombia","Ecuador","Ecuador","Colombia","Colombia","Ecuador"],["Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","No es necesaria","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","No es necesaria","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","No es necesaria","No es necesaria","Parcialmente relevante","No es necesaria","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","No es necesaria","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","No es necesaria","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","No es necesaria","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Necesaria regularmente","Parcialmente relevante","Parcialmente relevante"],["Actualización periódica","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Actualización periódica","Capacitación adicional","Actualización periódica","Actualización periódica","Amplia capacitación","Actualización periódica","Actualización periódica","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Actualización periódica","Actualización periódica","Capacitación adicional","Actualización periódica","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Actualización periódica","Actualización periódica","Actualización periódica","Capacitación adicional","Actualización periódica","Actualización periódica","Amplia capacitación","Capacitación adicional","Actualización periódica","Actualización periódica","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Actualización periódica","Actualización periódica","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Amplia capacitación","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Actualización periódica","Capacitación adicional","Amplia capacitación","Actualización periódica","Capacitación adicional","Actualización periódica","Actualización periódica","Amplia capacitación","Amplia capacitación","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Amplia capacitación","Amplia capacitación","Amplia capacitación","Actualización periódica","Amplia capacitación","Actualización periódica","Capacitación adicional","Capacitación adicional","Amplia capacitación","Amplia capacitación","Capacitación adicional","Amplia capacitación","Capacitación adicional","Amplia capacitación","Actualización periódica","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Amplia capacitación","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Actualización periódica","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Amplia capacitación","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Actualización periódica","Actualización periódica","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Actualización periódica","Capacitación adicional","Amplia capacitación","Amplia capacitación","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Actualización periódica","Actualización periódica","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Actualización periódica","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Amplia capacitación","Amplia capacitación","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Amplia capacitación","Amplia capacitación","Amplia capacitación","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","No requiero capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Amplia capacitación","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Amplia capacitación","Capacitación adicional","Actualización periódica","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Amplia capacitación","Amplia capacitación","Capacitación adicional","Capacitación adicional","Amplia capacitación","Amplia capacitación","Capacitación adicional","Capacitación adicional","Actualización periódica","Amplia capacitación","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Amplia capacitación","Actualización periódica","Actualización periódica","Capacitación adicional","Actualización periódica","Actualización periódica","Capacitación adicional","Amplia capacitación","Capacitación adicional","Amplia capacitación","Capacitación adicional","Actualización periódica","Actualización periódica","Actualización periódica","Capacitación adicional","Actualización periódica","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Actualización periódica","Actualización periódica","Capacitación adicional","Capacitación adicional","Amplia capacitación","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Capacitación adicional","Amplia capacitación","Amplia capacitación","Actualización periódica","Actualización periódica","Capacitación adicional","Actualización periódica","Actualización periódica","Capacitación adicional","Actualización periódica","Actualización periódica","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Amplia capacitación","Actualización periódica","Capacitación adicional","Actualización periódica","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Amplia capacitación","Capacitación adicional","Capacitación adicional","Capacitación adicional","Capacitación adicional","Actualización periódica","Actualización periódica","Actualización periódica","Actualización periódica","Capacitación adicional","Actualización periódica","Capacitación adicional","Capacitación adicional","Amplia capacitación","Actualización periódica","Capacitación adicional","Capacitación adicional","Actualización periódica","Actualización periódica","Capacitación adicional","Capacitación adicional","Capacitación adicional"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Edad<\/th>\n      <th>Service_years<\/th>\n      <th>Agencia<\/th>\n      <th>Genero<\/th>\n      <th>Pais<\/th>\n      <th>Relevance_of_the_skill<\/th>\n      <th>Skill_competency<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"bPaginate":false,"dom":"ftp","language":{"info":"Showing _TOTAL_ entries"},"paging":true,"columnDefs":[{"className":"dt-right","targets":2},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"Edad","targets":1},{"name":"Service_years","targets":2},{"name":"Agencia","targets":3},{"name":"Genero","targets":4},{"name":"Pais","targets":5},{"name":"Relevance_of_the_skill","targets":6},{"name":"Skill_competency","targets":7}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+<div id="3ade8a4a-fb1d-4a6c-8409-ac45482d5fc9" class="hidden html-fill-item html-fill-container">
+
+</div>
+</div>
+</div>
+</div>
+</div></div><aside id="bslib-sidebar-1" class="sidebar html-fill-container html-fill-item"><div class="html-fill-container html-fill-item">
+<p>This dashboard displays statistics to better understand Amazon Rangers skills, identify areas for improvement, and potentially develop training programs.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Average</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Service Years</strong></td>
+<td>10.8</td>
+</tr>
+<tr class="even">
+<td><strong>Technical training</strong></td>
+<td>2.7</td>
+</tr>
+<tr class="odd">
+<td><strong>Interpersonal training</strong></td>
+<td>1.8</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p>Role and responsability</p>
+<p></p><div class="wordcloud2 html-widget html-fill-item" id="htmlwidget-f1f3cb6fa3bbb5a30780" style="width:100%;height:338px;"></div> <script type="application/json" data-for="htmlwidget-f1f3cb6fa3bbb5a30780">{"x":{"word":["control","vigilancia","protección","educación","conservación","naturales","monitoreo","manejo","recursos","apoyo","cumplir","patrullajes","comunidades","dentro","anp","apoyar","gestión","natural","protegidas","fauna","seguimiento","coordinar","trabajo","medio","ambiente","funciones","acciones","especiales","zona","hacer","áreas","plan","coordinación","rutinarios","flora","parque","turismo","biodiversidad","implementación","uso","area","mantenimiento","jefe","proteger","procesos","acuerdos","marco","relacionamiento","cargo","participar","silvestre","guardaparque","visitantes","interior","información","informes","responsable","autoridad","cuerpo","línea","acuerdo","puesto","conservar","legales","restauración","pnn","amortiguamiento","nacional","indígenas","areas","charlas","smart","reuniones","atención","brindar","elaboración","ordenamiento","estrategias","participación","prevención","programa","comandar","proteccion","velar","vigentes","planes","cumplimiento","investigación","biológico","vida","patrullaje","forestales","jefatura","cuidar","conservacion","normas","cuidado","personal","dirección","•","planificación","proceso","gestionar","tenencia","paya","educacion","responsabilidad","equipos","talleres","forestal","población","infraestructura","incendios","monitoreos","pesca","campesinas","ocupación","administrativo","desarrollar","desarrollo","ejecutar","social","técnica","diferentes","controlar","implementar","comunal","reserva","etc","zonas","guardaparques","pvc","asistencia","límites","registro","estrategia","viveros","técnicos","territorial","líneas","articulación","ecológica","equipo","capacitación","ambientales","relacionadas","bajo","aser","proyectos","senderos","cepa","casa","fortalecimiento","función","instrumentos","asignadas","entidad","institucionales","nivel","actualización","administrativa","manera","pueblo","voluntades","participacion","rrnn","sociales","formulación","supervisar","dispositivos","local","programas","biologica","comunicación","comunidad","mediante","reportes","autoridades","comunales","espacios","calidad","uot","vigilar","verificar","representar","leyes","asistir","preservación","orientación","ecosistemas","políticas","objetivos","disposiciones","tareas","parte","ley","locales","instituciones","patrimonio","alto","campo","pmoia","acción","anual","físicos","recorridos","sistema","siona","prevenir","asociación","articular","resguardo","realizando","responsabilidades","biológica","participativa","sostenible","jurisdicción","aops","campamento","realiza","ecológico","animales","aps","ser","encargado","así","instancia","administración","capacitaciones","diversidad","todas","asignada","operativos","eem","haser","preservar","pobladores","convenios","indígena","nacionales","sector","planeación","coordinador","civil","conjunto","contribuyan","intercultural","resguardos","sociedad","comunitarias","consolidar","construcción","definidos","demás","ejercicio","evaluar","fin","humanos","indigenas","vigente","ejecución","presupuestal","liderar","sig","ayudar","acompañamiento","territorio","administrativos","alianzas","conflictos","influencia","zonificación","acilapp","político","cultural","nativas","principales","limites","ámbito","ingreso","combate","operativo","central","técnico","trabajos","redes","atribuciones","guardar","salud","seguridad","especial","formación","caza","emergencia","cooperación","yanesha","normativas","conocimiento","acompañar","director","fungir","primera","promover","público","orientar","asi","desastres","general","prestar","publico","reglamentos","responsabilizarse","actividad","sensibilización","dirigir","planificar","coordinacion","coordinaciones","eventos","extensionismo","extencion","caso","elaborar","organizaciones","tambien","diversas","cualquier","datos","inspecciones","principal","formal","cuanto","custodia","facilitador","realizo","relación","educativas","herramientas","sira","guarda","integridad","enlace","comunitario","capacitar","evaluación","actores","lugares","incendio","relacionados","temas","personas","ejercer","registros","institucional","varias","parques","sinap","pvyc","cauca","piamonte","tinigua","autonomía","plena","entidades","amazonia","comunitaria","dialogo","efectiva","gobernanza","orito","reservas","san","santa","fines","estratégica","adecuada","amazónico","análisis","asignados","aspectos","carácter","concordancia","desempeño","eficiente","ejercicios","financieros","grupos","implementacion","inherentes","lineamientos","normatividad","policivas","propias","rem","sancionatorias","utilización","yal","étnicos","comisiones","documentos","servicio","tramites","profesional","clara","igual","entendimiento","generación","sur","diálogo","municipales","resolución","interinstitucionales","perfil","gestion","actualmente","logístico","movilidad","sede","asignado","alertas","sensibilizacion","tempranas","verificacion","monitorear","proteguida","aprovechamiento","educação","dtam","producción","dar","poblaciones","creación","riesgos","ambientes","exploración","renovables","contro","emergencias","vienes","ejerciendo","chófer","según","rutinario","redacción","buen","designados","intervención","madera","puestos","traslado","unidades","ausencia","consolidación","contribuyendo","logro","tendientes","accidentes","científicas","estrecha","extensión","inmediata","labores","mantener","reglamentarias","requiera","supervisión","través","charla","consientizacion","recurso","tecnico","encargada","radio","contravenciones","difucion","administrativas","aliados","consultores","manejos","facilitar","llevan","fomentar","informar","tema","relaciones","ríos","cada","máxima","obligaciones","permanente","trimestrales","trafico","garantizar","agendas","capacidades","gps","infraestructuras","mantenimientos","activos","agua","generada","biodibercidad","ala","vijentes","campesino","triunfo","calor","focos","aplicables","producidos","científica","contratación","revisión","encuentran","registrar","sectores","contaminaciones","permanentemente","vigilancias","mas","fragua","indi","wasi","caquetá","hago","supervicion","objeto","distrito","silvestres","ilegales","correspondiente","prevencion","generar","cámaras","física","sib","vijilancia","minería","recorrido","reporte","chiribiquete","contractual","serranía","sistematización","metas","inventarios","establecidos","archivo","matriz","sancionatorios","salva","inga","políticos","niveles","entorno","actualizar","ecoturístico","servicios","ejecuten","inducción","articulacion","afilador","alegre","amortiguadora","andes","aportar","colindantes","conectividad","establezca","guamuez","marcelino","rosa","subregional","veredas","yarinal","asociaciones","juntas","siembras","tratar","aemapps","analisis","aras","contexto","correspondas","correspondientes","deberá","definida","definidas","desempeñar","diligenciar","efectividad","emc","entregar","esquemas","etnica","inmediato","naturaleza","negras","ocupacional","orientaciones","plataforma","política","procedimientos","programaciones","regimenes","requerido","requeridos","sistemas","sostenibles","ssc","tal","traslape","ydemás","ydialogo","etapas","financiero","humana","legalización","poscontractuales","precontractuales","solicitud","compromisos","funcionales","ocupacion","procesamiento","universitario","principalmente","transmitir","dos","interlocutor","lograr","divulgativo","material","indigena","pnnc","politico","misionales","municipios","nuevos","subsistemas","apoya","establece","reglamentación","usos","embera","emprendimiento","priorizados","purus","vengo","rnff","tariquia","terrestre","territoriales","particitiva","intervenciones","ventos","delimitacion","amenaza","contrarrestar","cumple","importante","cecilia","abertura","ambientais","crimes","incêndios","trilhas","legislación","vigilacia","eel","digitalización","fiscalización","cercanos","constantemente","desempeñe","pais","socialización","vijiancia","educaion","contenidos","edición","fotografías","iñao","líderes","posicionamiento","promoción","publicando","toma","videos","vídeos","regap","sntn","recusos","recorsos","reglamento","administrtivas","apoyos","cosas","lider","restaruación","inspección","conservacoion","fiscalização","incêndio","patrulhamento","vigilância","sernap","encargue","casos","explicar","incluye","indiscriminada","limpieza","respectivo","salvajes","conservarproteger","evitar","ilícitas","perjudican","audiencias","campamentos","realizan","firmadas","competencia","estándar","educion","permanencia","cultivo","orquídeas","pitahaya","plantones","conducen","dirigida","encuentra","bpam","combustible","conduccion","funcionamiento","gas","motocicletas","pnp","vehiculares","víveres","asumir","interina","operativa","acer","funcionario","subordinada","dictar","aquellas","categorización","cursos","desencadenadas","destinados","encomendadas","escritos","eventualmente","forma","informada","instruya","normadas","oral","programados","superior","superioridad","ajuste","básicas","concientización","diagnóstico","elaboran","informativas","programación","semestral","anprcy","abolacrealizando","digencial","naturale","alternativos","originarias","ánp","organizar","educasion","escuelas","trabavez","camaras","comite","culturales","designadas","difundir","directas","instalaciones","intervencion","maestro","municipal","palcazu","publicas","trampas","traves","difunción","difuciòn","poa","conductor","vehiculos","distintas","machiguenga","salida","degradadas","investigacion","reforestacion","âmbito","dedico","asiendo","acabo","activiades","actividaeds","encuestas","hacen","informacion","listado","llevar","quieren","sistematizacion","acceso","alrededores","asegurar","asimismo","autorización","centra","dañina","debida","decomisos","necesarios","permisos","recopilar","respomsable","parqueextensión","protegidasvigilancia","sonó","encomienda","identidad","mandato","objetivo","encomendado","planificado","coodrdinacion","counidades","productivo","peces","amerite","anuales","belaborar","coord","cparticipar","dordenar","gpresentar","reemplazara","tuición","constantes","sencivilizacion","gerencia","interpretación","ademas","controles","turista","nnn","niños","escenarios","interlocución","vigilanciapvyc","anteojos","biologicos","conect","esenciales","mobile","natura","oara","osos","paujil","viene","vigilanciapatrullajes","rool","ilegal","producto","cultura","educar","estudiantil","masa","productores","tecnicamente","bombero","básico","caudal","motocicleta","combatir","procesar","sistematizar","atente","espacio","protegido","repeler","comandarasistirevaluar","biodevirsedad","protejiendo","controly","cuidando","agentes","boiduversidad","proteje","responsables","frora","relasonamiento","vecinos","exploratorios","realizamos","cerca","liquidación","respuesta","directpr","biodivercidad","amenazas","aplicación","beneficio","ciudadana","competencias","degradados","desarrollen","establecer","experiencias","flujos","fortalecer","intercambio","internacional","memoria","modalidades","referencia","referido","relacionada","rural","términos","vínculos","ámbitos","humanas","biodirecidad","regulan","armadas","fuerzas","gobiernos","rescates","amboro","cumpliendo","kempff","mercado","noel","norte","biodevbercidad","compler","cunpler","proteción","finalidad","pías","trabajar","comites","ingresan","miembros","pncaz","auxilios","búsqueda","infractores","lagunas","muchas","posibles","primeros","rescate","flota","activamente","participando","vigilanciaconscientizacion","yeducacion","implica","concervacion","fiscalisacion","ares","protegidad","adec","delegadas","socializar","suscriptores","pertenezco","protejida","boliviano","preserbar","protejer","data","chofer","logistico","administrar","beneficiarias","cogestion","aledañas","fijos","arqueológicos","sitios","resguardar","guardarparques","responsabilizar","existen","activa","conciencia","crear","cronograma","efectuando","fluviales","marítimos","permanentes","preestablecido","promoviendo","propiciar","pueden","terrestres","áereos","medioambiente","benefician","delas","siguientes","avances","estratégicas","financieras","gestiones","reportar","cocientizacion","importancia","yerior","departamento","facilitadora","filiales","inganokuna","ingas","misma","puente","tandachiridu","conducción","logística","eninvestigación","implementaron","riesgo","valores","colegios","comendas","extrito","sona","protécción","comunicaciones","reposable","región","culturaler","resturacion","torotoro","coordenadas","fotos","sacar","acorde","calendario","desarrollando","designado","dias","mensual","operacion","rip","trabajamos","comunidas","mineras","regauardo","vulnerables","bomberos","hidricos","desarrollados","extranjeros","originarios","patrullajs","patrullajeseducacion","agenres","atencion","cumplen","divercidad","gran","van","vicitantes","cabo","dejar","funcion","organizacion","reclaman","rol","ainda","animais","caça","com","combater","conservação","contato","existentes","manter","naturais","pelos","proprietários","residem","unidade","zelar","interdicción","extrañas","controleducación","especialistas","mismo","oficinas","organizan","visitas","consevacion","haciendo","extención","snmeg","diarias","operaciones","puestoasegura","patrullages","vigilansia","delitos","suceden","asigna","biologico","poblacion","socializacion","actividdaes","belar","bien","común","futuras","generaciones","patrullajer","anpbpam","disfusión","dron","planificaciones","técnicas","demarcación","reforestación","avifauna","caimanes","delfines","mamíferos","mariposas","ramsar","minitoreos","turísticas","validación","biologicoscepauso","fluvialesmonitoreos","terrestrespatrullajes","yasuní","tecnicas","enmarcadas","cómo","daño","depredador","invasor","investigaciones","plantas","abandonar","compañeros","cronogramas","encargados","envían","jornadas","laboral","laborales","invasores","agrícola","avance","frontera","cientifica","forestalturismo","incestigación","viguilancia","aledaños","habitan","usuarios","vigilanciacepa","atraves","geográficas","hitos","letreros","oficial","sata","trampa","turística","verificación","vicitacion","consevacin","designada","ashaninka","veneficio","pnbas","documentación","aporten","definan","ello","establecida","generen","herramienta","campesina","comprender","comunicativas","educativa","formas","fotografía","integro","mensaje","prensa","designe","lineas","bienes","permita","valoración","asuntos","colombia","internacionales","orinoquia","referente","nativos","suembra","árboles","lideres","sst","apkac","firmado","comanejo","institución","afro","administrador","base","guaivare","josé","interinstitucional","policivos","trámites","situación","iniciativas","presenten","requerimientos","responder","unesco","contingencias","socionaturales","aprecio","ayuden","cero","clave","comportamientos","diseñar","documentar","enfoque","mayor","mejorar","metodologías","metodológico","pedagógicas","prácticas","relevantes","resultados","taller","transversalización","tres","–","protocolo","componentes","poe","planificadas","prestación","apv","creó","secretaria","conceptualizar","concertadas","contribuya","efectuar","hacia","misión","permitidas","regulación","requeridas","campesinos","vereda","triunfó","misional","apollo","profesionales","proyecto","bosque","embolsar","germinar","recoleccion","sembrar","semillas","documento","caracterización","familias","formatos","lineamiento","formular","invertebrados","macro","biológicos","sepa","biológicoadministración","turistas","usiario","ministerio","transición","turislo","legal","liderazgo","motivación","negociación","normativa","concertar","culturalmente","relacionan","traslapadas","bienestar","caquéta","consulta","esperanza","líder","previa"],"freq":[227,175,82,75,73,53,53,50,50,48,46,41,40,36,35,33,32,30,28,28,27,27,27,27,26,25,24,23,22,22,22,21,21,21,21,21,21,20,20,20,20,20,19,19,18,17,17,17,17,17,17,17,17,16,16,16,16,15,15,14,14,14,14,14,13,13,13,13,12,12,12,12,12,12,12,11,11,11,11,11,11,11,11,11,11,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"fontFamily":"Segoe UI","fontWeight":"bold","color":"random-dark","minSize":0,"weightFactor":0.3964757709251101,"backgroundColor":"white","gridSize":0,"minRotation":-0.7853981633974483,"maxRotation":0.7853981633974483,"shuffle":true,"rotateRatio":0.4,"shape":"circle","ellipticity":0.65,"figBase64":null,"hover":null},"evals":[],"jsHooks":{"render":[{"code":"function(el,x){\n                        console.log(123);\n                        if(!iii){\n                          window.location.reload();\n                          iii = False;\n\n                        }\n  }","data":null}]}}</script><p></p>
+<hr>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Disclaimer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The Data was anonymized. This initiative is part of the Amazon Sustainable Landscapes Program, funded by the Global Environment Facility (GEF) and led by the World Bank.</p>
+</div>
+</div>
+</div>
+</div></aside>
+<button class="collapse-toggle" type="button" title="Toggle sidebar" aria-expanded="true" aria-controls="bslib-sidebar-1">
+    <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" class="bi bi-chevron-left collapse-icon" style="fill:currentColor;" aria-hidden="true" role="img">
+      <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"></path>
+    </svg>
+</button>
+<script data-bslib-sidebar-init="">
+bslib.Sidebar.initCollapsibleAll()
+</script>
+</div>
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /container fluid -->
+
+<script type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (_event) {
+  if (window.bslib.Card) {
+    window.bslib.Card.initializeAllCards();
+  }
+}); 
+</script>
+  
+
+
+
+</body></html>
