@@ -7,7 +7,9 @@ format:
 logo: images/logo.png
 theme: [sandstone, theme/custom.scss]
 fig-width: 10
-fig-asp: 0.3
+fig-height: 9
+fig-asp: 0.45
+#fig-asp: 0.3
 params:
   month: "October"
   year: "2023"
@@ -28,8 +30,12 @@ library(readxl)
 library(scales)
 library(DT)
 library(gt)
+library(gtExtras)
+library(kableExtra)
 library(tm)
 library(wordcloud2)
+library(likert)
+
 library(tidytext)
 
 theme_set(theme_minimal(base_size = 24, base_family = "Atkinson Hyperlegible"))
@@ -39,7 +45,7 @@ theme_set(theme_minimal(base_size = 24, base_family = "Atkinson Hyperlegible"))
 #| label: load-data
 #| message: false
 
-ld <- read_excel("data/Amazonia(1-428).xlsx")
+ld <- read_excel("data/Amazonia-all.xlsx")
 ld_old <- read_excel("data/ld.xlsx")
 ```
 
@@ -54,6 +60,29 @@ interpersonal <- mean(
   as.numeric(ld$`capacitacion en blandas`), na.rm = TRUE
  )
 
+####################################
+f.assesment <- function(ld) {
+  #### LOOP
+  for(i in 1:11){
+    # Relevance_skill_1
+    names(category_relevance) <- c(paste("Relevance_skill_",i, sep=""), 
+                                   paste("score_Relev_",i, sep=""))
+    
+    # Competence_skill_1
+    names(category_competence) <- c(paste("Competence_skill_",i, sep=""), 
+                                    paste("score_Compet_",i, sep=""))
+    
+    # fix -1 
+    ld <- ld %>%
+      left_join(category_relevance) |> left_join(category_competence)
+    
+  } #close loop
+  
+return(ld[,seq(from=dim(ld)[2]-21, to=dim(ld)[2], by=1)]) #Return just last 22
+
+  }
+
+
 
 ```
 
@@ -67,7 +96,7 @@ ld <- ld |>
   mutate(Service_years=as.numeric(`Años de servicio`)) |> 
   mutate(Goverment_Agency=Agencia)
 
-service_yr_mean <- mean(ld$Service_years)
+service_yr_mean <- mean(ld$Service_years, na.rm = TRUE)
 
 docs <- Corpus(VectorSource(ld$`funciones y responsabilidades del cargo`))
 # Convertir a letras minúsculas el texto.
@@ -75,10 +104,13 @@ docs <- tm_map(docs, content_transformer(tolower))
 # Remover números
 docs <- tm_map(docs, removeNumbers)
 # Remover stopwords comunes
-docs <- tm_map(docs, removeWords, stopwords("spanish"))
+docs <- tm_map(docs, removeWords, stopwords(c("spanish")))
+docs <- tm_map(docs, removeWords, stopwords(c("english")))
+docs <- tm_map(docs, removeWords, stopwords(c("portuguese")))
+docs <- tm_map(docs, removeWords, stopwords(c("dutch")))
 # Remover una palabra en particular.
 # Se especifica las stopwords como un vector de caracteres.
-docs <- tm_map(docs, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+docs <- tm_map(docs, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental", "naturales", "dentro", "anp", "natural", "trabajo" )) 
 
 # remover signos de puntuación
 docs <- tm_map(docs, removePunctuation)
@@ -91,9 +123,91 @@ matriz <- as.matrix(dtm)
 # ordenar filas de la matriz en orden descendente
 v <- sort(rowSums(matriz),decreasing=TRUE)
 # convertir a data frame
-d <- data.frame(word = names(v),freq=v)
+data_word <- data.frame(word = names(v),freq=v)
 # mostrar los primeros 10 términos que más se repiten
 # head(d, 10)
+
+# wordcloud2(data=data_word[1:50,], size = 0.5)
+
+###############
+# Counts
+###############
+category_relevance <- as.data.frame(unique(factor(ld$Relevance_skill_1)))
+category_relevance$score <- c(1,0,-1)
+category_competence <- as.data.frame(unique(factor(ld$Competence_skill_1)))
+category_competence$score <- c(3,2,1,4)
+
+assesment <- matrix(nrow = 11, ncol = 2) # two colums
+
+#### LOOP
+for(i in 1:11){
+# Relevance_skill_1
+
+names(category_relevance) <- c(paste("Relevance_skill_",i, sep=""), 
+                              paste("score_Relev_",i, sep=""))
+
+
+# Competence_skill_1
+
+names(category_competence) <- c(paste("Competence_skill_",i, sep=""), 
+                              paste("score_Compet_",i, sep=""))
+
+# fix -1 
+ld_score <- ld %>%
+  left_join(category_relevance) |> left_join(category_competence)
+ind <- which(is.na(ld_score[,42]))
+b <- as.vector(ld_score[,42])
+ld_score[,42] <- as.numeric(b[[1]])
+ld_score[ind,42] <- -1
+
+d <- as.vector(ld_score[,43])
+ld_score[,43] <- as.numeric(d[[1]])
+
+assesment[i,] <- c(
+  round(sum(ld_score[,42])/dim(ld_score[,38])[1], digits=3),
+  round(sum(ld_score[,43])/dim(ld_score[,38])[1], digits=3)
+       
+    )
+
+}
+
+assesment <- as.data.frame(assesment)
+names(assesment) <- c("Relevance", "Competence")
+
+Skills <- c(
+"Leadership and Management",
+"Self-Motivation",
+"Problem-Solving and Decision-Making",
+"Organizational Management",
+"Emotional Intelligence",
+"Community Rights and Communication",
+"Communication of Information and Ideas" ,
+"Negotiation and Resolution of Interpersonal Conflicts" ,
+"Description of Natural and Cultural Values in Protected Areas",
+"Strategy and Threat Management in Protected Areas",
+"Ranger Safety and Protection" 
+)
+
+assesment$Skills <- as.vector(Skills)
+
+Assesment_Table <- assesment |> kbl() |> 
+  kable_paper(full_width = T) |> 
+  kable_styling(font_size = 7) |> 
+  row_spec(c(1,5), bold = T, color = "white", background = "#D7261E") |> 
+  column_spec(1, color = "white",
+              background = spec_color(assesment$Relevance[1:11], 
+           end = 0.9,
+           option = "plasma",
+           direction=-1),
+              popover = paste("am:", assesment$Skills[1:11])) |>  column_spec(2, color = "white",
+              background = spec_color(assesment$Competence[1:11], 
+           end = 0.9,
+           option = "plasma",
+           direction=-1),
+              popover = paste("am:", assesment$Skills[1:11]))
+
+
+
 
 ```
 
@@ -104,14 +218,12 @@ This dashboard displays statistics to better understand Amazon Rangers skills, i
 |              |   Average   |
 |--------------|---------------------|
 | **Service Years** |  `{r} round(service_yr_mean, 1)` |
-| **Technical training** | `{r} round(thecnical, 1)` |
-| **Interpersonal training** | `{r} round(interpersonal, 1)`   |
+| **Technical training last five years** | `{r} round(thecnical, 1)` |
+| **Interpersonal training last five years** | `{r} round(interpersonal, 1)`   |
 
 ------------------------------------------------------------------------
 
-Role and responsability
-
- `{r} wordcloud2(data=d, size = 0.5)`
+Current role. 50 most common words `{r} wordcloud2(data=data_word[1:50,], size = 0.4, shuffle=FALSE, rotateRatio=0)`
 
 ------------------------------------------------------------------------
 
@@ -172,7 +284,7 @@ list(
 
 ```{r}
 #| content: valuebox
-#| title: "Males"
+#| title: "Man"
 
 list(
   #icon = "gender-male",
@@ -183,7 +295,7 @@ list(
 
 ```{r}
 #| content: valuebox
-#| title: "Females"
+#| title: "Woman"
 
 list(
   #icon = "gender-female",
@@ -192,22 +304,50 @@ list(
 )
 ```
 
-## Row {height="35%"}
+## Row {height="40%"}
 
-### Column {width="40%"}
+### Column {width="50%"}
 
 ```{r}
-#| title: Countries
+#| title: Ages and Gender
 
-ld |> count(Pais) |> 
-  mutate(prop = n / sum(n) *100) |> 
-  mutate(ypos = cumsum(prop)- 0.6*prop ) |> 
+mean_age <- ld |> group_by(Genero) |> summarise(avg = mean(Age, na.rm = TRUE))
 
-  ggplot(aes(x="", y=prop, fill=Pais)) +
-  geom_bar(stat="identity", width=1, color="white") +
-  coord_polar("y", start=0) +
-  theme_void() # remove background, grid, numeric labels
-  
+
+ld |> group_by(Genero) |> 
+  #count(Edad) |>
+  #mutate(p = n / sum(n)) |>
+  ggplot( aes(x=Age, fill=Genero)) +
+  geom_histogram( alpha=0.7, position = 'identity', binwidth=1) +
+  # scale_fill_manual(values=c("#69b3a2", "#404080")) +
+  labs(x = NULL) + 
+  geom_vline(xintercept = mean_age$avg, linetype="dotted", 
+                color = c("red", "blue" ), size=1.5)# +
+  # scale_y_continuous(
+  #   "Count",
+  #   sec.axis = sec_axis(~ . / n_births, name = "Proportion", labels = label_percent())
+  # )
+```
+
+
+### Column {width="50%"}
+
+
+
+```{r}
+#| title: Assesment
+
+# ld |> count(Pais) |> 
+#   mutate(prop = n / sum(n) *100) |> 
+#   mutate(ypos = cumsum(prop)- 0.6*prop ) |> 
+# 
+#   ggplot(aes(x="", y=prop, fill=Pais)) +
+#   geom_bar(stat="identity", width=1, color="white") +
+#   coord_polar("y", start=0) +
+#   theme_void() # remove background, grid, numeric labels
+#   
+
+Assesment_Table
 
 # ld |>
 #   count(delivery_method) |>
@@ -240,44 +380,77 @@ ld |> count(Pais) |>
 
 ```
 
-### Column {width="60%"}
+
+## Row {height="45%"}
 
 ```{r}
-#| title: Ages
+#| title: Competence of Skills for Men
+
+ld_m <- ld |> filter(Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males  <- as.data.frame(ld_m[,c(2,4,6,8,10,12,14,16,18,20,22)]) |> 
+  mutate_all( factor)
+
+Skills_short <- c(
+"Leader, Manag",
+"Self-Motiv",
+"Prob-Solv, Deci-Mak",
+"Organizat Manag",
+"Emo Intellig",
+"Comm Rights and Comm",
+"Comm Inf and Ideas" ,
+"Negot and Resol Confl" ,
+"Desc Nat and Cult Val",
+"Strat and Threat Mangmt",
+"Ranger Safety Protec" 
+)
+
+# change names
+names(scores_Compet_males) <- Skills_short
 
 
-ld |> group_by(Genero) |> 
-  #count(Edad) |>
-  #mutate(p = n / sum(n)) |>
-  ggplot( aes(x=Age, fill=Genero)) +
-  geom_histogram( alpha=0.7, position = 'identity', binwidth=1) +
-  # scale_fill_manual(values=c("#69b3a2", "#404080")) +
-  labs(x = NULL) # +
-  # scale_y_continuous(
-  #   "Count",
-  #   sec.axis = sec_axis(~ . / n_births, name = "Proportion", labels = label_percent())
-  # )
+# Build plot
+p <- likert(scores_Compet_males) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+# |> 
+#   count(score_Relev_1, score_Compet_1) |>
+#   ggplot(aes(x = n, y = fct_rev(score_Relev_1), fill = score_Compet_1)) +
+#   geom_col(position = "fill", color = "white") +
+#   scale_fill_manual(
+#     values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#     guide = guide_legend(reverse = TRUE)
+#   ) +
+#   scale_x_continuous(labels = label_percent()) +
+#   labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+
+
+
+
 ```
 
-## Row {height="50%"}
-
 ```{r}
-#| title: Relvance of the Skill Males
+#| title: Competence of Skills for Women
 
-ld |> filter(Genero=="Masculino") |> 
-  count(Relevance_of_the_skill, Skill_competency) |>
-  ggplot(aes(x = n, y = fct_rev(Relevance_of_the_skill), fill = Skill_competency)) +
-  geom_col(position = "fill", color = "white") +
-  scale_fill_manual(
-    values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
-    guide = guide_legend(reverse = TRUE)
-  ) +
-  scale_x_continuous(labels = label_percent()) +
-  labs(y = NULL, x = NULL, fill = "Skill competency\nfor my role")
-```
 
-```{r}
-#| title: Relvance of the Skill Females
+ld_f <- ld |> filter(Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females  <- as.data.frame(ld_f[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females[,y] <- factor(scores_Compet_females[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
 
 # ld_old |>
 #   count(maternal_age, delivery_method) |>
@@ -289,17 +462,17 @@ ld |> filter(Genero=="Masculino") |>
 #   ) +
 #   scale_x_continuous(labels = label_percent()) +
 #   labs(y = NULL, x = NULL)#, fill = "Delivery\nmethod")
-
-ld |> filter(Genero=="Femenino") |> 
-  count(Relevance_of_the_skill, Skill_competency) |>
-  ggplot(aes(x = n, y = fct_rev(Relevance_of_the_skill), fill = Skill_competency)) +
-  geom_col(position = "fill", color = "white") +
-  scale_fill_manual(
-    values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
-    guide = guide_legend(reverse = TRUE)
-  ) +
-  scale_x_continuous(labels = label_percent()) +
-  labs(y = NULL, x = NULL, fill = "Skill competency\nfor my role")
+# 
+# ld |> filter(Genero=="Femenino") |> 
+#   count(Relevance_skill_1, Competence_skill_1) |>
+#   ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#   geom_col(position = "fill", color = "white") +
+#   scale_fill_manual(
+#     values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#     guide = guide_legend(reverse = TRUE)
+#   ) +
+#   scale_x_continuous(labels = label_percent()) +
+#   labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
 
 ```
 
@@ -327,27 +500,39 @@ total_col <- sum(n_Genero_col$n)
 
 ```
 
-### Row {height="20%"}
+### Row {height="15%"}
 
 ```{r}
 #| component: valuebox
-#| title: "Males"
+#| title: "Total"
 
 list(
   # icon = "file-medical",
   color = "primary",
-  value = label_percent(accuracy = 1)(males_col$n/total)
+  value = (total_col)
+)
+```
+
+
+```{r}
+#| component: valuebox
+#| title: "Man"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = label_percent(accuracy = 1)(males_col$n/total_col)
 )
 ```
 
 ```{r}
 #| component: valuebox
-#| title: "Females"
+#| title: "Woman"
 
 list(
   # icon = "calendar-week",
   color = "warning",
-  value = label_percent(accuracy = 0.1)(females_col$n/total)
+  value = label_percent(accuracy = 0.1)(females_col$n/total_col)
 )
 ```
 
@@ -367,67 +552,108 @@ ld_col |> count(Protected_Area) |>
 
 ```
 
-### Row {height="40%" .tabset}
+### Row {height="45%" .tabset}
 
 ```{r}
-#| title: Relvance of the Skill Males
+#| title: Competence of Skills for Men
 
-ld_col |> filter(Genero=="Masculino") |> 
-  count(Relevance_of_the_skill, Skill_competency) |>
-  ggplot(aes(x = n, y = fct_rev(Relevance_of_the_skill), fill = Skill_competency)) +
-  geom_col(position = "fill", color = "white") +
-  scale_fill_manual(
-    values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
-    guide = guide_legend(reverse = TRUE)
-  ) +
-  scale_x_continuous(labels = label_percent()) +
-  labs(y = NULL, x = NULL, fill = "Skill competency\nfor my role")
+
+ld_m_C <- ld |> filter(Pais=="Colombia", Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males_C  <- as.data.frame(ld_m_C[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_males_C[,y] <- factor(scores_Compet_males_C[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_males_C) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_males_C) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+# ld_col |> filter(Genero=="Masculino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
 ```
 
 ```{r}
-#| title: Relvance of the Skill Females
+#| title: Competence of Skills for Women
 
-ld_col |> filter(Genero=="Femenino") |> 
-  count(Relevance_of_the_skill, Skill_competency) |>
-  ggplot(aes(x = n, y = fct_rev(Relevance_of_the_skill), fill = Skill_competency)) +
-  geom_col(position = "fill", color = "white") +
-  scale_fill_manual(
-    values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
-    guide = guide_legend(reverse = TRUE)
-  ) +
-  scale_x_continuous(labels = label_percent()) +
-  labs(y = NULL, x = NULL, fill = "Skill competency\nfor my role")
+
+ld_f_C <- ld |> filter(Pais=="Colombia", Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females_C  <- as.data.frame(ld_f_C[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females_C[,y] <- factor(scores_Compet_females_C[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females_C) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females_C) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+
+
+# ld_col |> filter(Genero=="Femenino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
 ```
 
 ## Column {width="40%"}
 
 ```{r}
-#| title: Needs
+#| title: Assessment 
 
-docs_col <- Corpus(VectorSource(na.omit(ld_col$needs)))
-# Convertir a letras minúsculas el texto.
-docs_col <- tm_map(docs_col, content_transformer(tolower))
-# Remover números
-docs_col <- tm_map(docs_col, removeNumbers)
-# Remover stopwords comunes
-docs_col <- tm_map(docs_col, removeWords, stopwords("spanish"))
-# Remover una palabra en particular.
-# Se especifica las stopwords como un vector de caracteres.
-# docs_col <- tm_map(docs_col, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
-
-# remover signos de puntuación
-# docs_col <- tm_map(docs_col, removePunctuation)
-# Eliminar espacios en blanco extras.
-docs_col <- tm_map(docs_col, stripWhitespace)
-
-a <- data.frame(text=sapply(docs_col, identity), 
-                        stringsAsFactors=F)
-
-b <- a |> unnest_tokens(output = sentence, 
-                        input = text, 
-                        token = "sentences")
-
-datatable(b)
+# docs_col <- Corpus(VectorSource(na.omit(ld_col$needs)))
+# # Convertir a letras minúsculas el texto.
+# docs_col <- tm_map(docs_col, content_transformer(tolower))
+# # Remover números
+# docs_col <- tm_map(docs_col, removeNumbers)
+# # Remover stopwords comunes
+# docs_col <- tm_map(docs_col, removeWords, stopwords("spanish"))
+# # Remover una palabra en particular.
+# # Se especifica las stopwords como un vector de caracteres.
+# # docs_col <- tm_map(docs_col, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+# 
+# # remover signos de puntuación
+# # docs_col <- tm_map(docs_col, removePunctuation)
+# # Eliminar espacios en blanco extras.
+# docs_col <- tm_map(docs_col, stripWhitespace)
+# 
+# a <- data.frame(text=sapply(docs_col, identity), 
+#                         stringsAsFactors=F)
+# 
+# b <- a |> unnest_tokens(output = sentence, 
+#                         input = text, 
+#                         token = "sentences")
+# 
+# datatable(b)
 
 # #crear matriz documento de términos
 # dtm_col <- TermDocumentMatrix(docs_col)
@@ -440,6 +666,9 @@ datatable(b)
 # # head(d, 10)
 # wordcloud2(data=d_col, size = 0.5)
 #   
+
+
+
 ```
 
 
@@ -447,15 +676,19 @@ datatable(b)
 # Data
 
 ```{r}
-ld |>  select(Edad, 
-                        Service_years,
-                        Agencia, 
-                        Genero,
-                        Pais,
-                        Relevance_of_the_skill,
-                        Skill_competency) |> 
-  datatable(
-    # colnames = c("ID", "Maternal age", "Delivery method", "Parity", "Term"),
-    options = list(dom = 'ftp', paging = TRUE)
-    )
+
+ld[,1:12] |> kbl() |> 
+  kable_paper(full_width = T) |> 
+  kable_styling(font_size = 7)
+# ld |>  select(Edad, 
+#                         Service_years,
+#                         Agencia, 
+#                         Genero,
+#                         Pais,
+#                         Relevance_of_the_skill,
+#                         Skill_competence) |> 
+#   datatable(
+#     # colnames = c("ID", "Maternal age", "Delivery method", "Parity", "Term"),
+#     options = list(dom = 'ftp', paging = TRUE)
+#     )
 ```
