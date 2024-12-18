@@ -190,21 +190,24 @@ Skills <- c(
 
 assesment$Skills <- as.vector(Skills)
 
-Assesment_Table <- assesment |> kbl() |> 
+Assesment_Table <- assesment |> 
+  arrange(desc(Relevance)) |> 
+  kbl() |> 
   kable_paper(full_width = T) |> 
-  kable_styling(font_size = 7) |> 
-  row_spec(c(1,5), bold = T, color = "white", background = "#D7261E") |> 
+  kable_styling(font_size = 7, "condensed") |> 
+  row_spec(c(1,10), bold = T) |> #, color = "white", background = "gray75")
   column_spec(1, color = "white",
               background = spec_color(assesment$Relevance[1:11], 
            end = 0.9,
            option = "plasma",
+           alpha=0.25,
            direction=-1),
-              popover = paste("am:", assesment$Skills[1:11])) |>  column_spec(2, color = "white",
-              background = spec_color(assesment$Competence[1:11], 
-           end = 0.9,
-           option = "plasma",
-           direction=-1),
-              popover = paste("am:", assesment$Skills[1:11]))
+              popover = paste("Relev:", assesment$Skills[1:11])) # |>  column_spec(2, color = "white",
+#              background = spec_color(assesment$Competence[1:11], 
+#           end = 0.9,
+#           option = "plasma",
+#           direction=1),
+#              popover = paste("Compet:", assesment$Skills[1:11]))
 
 
 
@@ -269,7 +272,7 @@ total <- sum(n_Genero$n)
 
 ```
 
-## Row {height="15%"}
+## Row {height="20%"}
 
 ```{r}
 #| content: valuebox
@@ -381,7 +384,7 @@ Assesment_Table
 ```
 
 
-## Row {height="45%"}
+## Row {height="40%"}
 
 ```{r}
 #| title: Competence of Skills for Men
@@ -500,7 +503,7 @@ total_col <- sum(n_Genero_col$n)
 
 ```
 
-### Row {height="15%"}
+### Row {height="20%"}
 
 ```{r}
 #| component: valuebox
@@ -552,7 +555,7 @@ ld_col |> count(Protected_Area) |>
 
 ```
 
-### Row {height="45%" .tabset}
+### Row {height="40%" .tabset}
 
 ```{r}
 #| title: Competence of Skills for Men
