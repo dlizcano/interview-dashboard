@@ -1465,6 +1465,442 @@ plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALS
 
 
 
+# Guyana {orientation="columns"}
+
+## Column {width="60%"}
+
+```{r}
+#| label: Guyana-values
+#| results: hide
+
+ld_gy <- ld |>
+  filter(Pais == "Guyana")
+
+n_respondants_gy <- nrow(ld_gy)
+
+n_Genero_gy <- ld_gy |>
+  count(Genero)  
+
+males_gy <- n_Genero_gy[2,2]
+females_gy <- n_Genero_gy[1,2]
+
+total_gy <- sum(n_Genero_gy$n)
+
+```
+
+### Row {height="20%"}
+
+```{r}
+#| component: valuebox
+#| title: "Total"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = (total_gy)
+)
+```
+
+
+```{r}
+#| component: valuebox
+#| title: "Man"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = label_percent(accuracy = 1)(males_gy$n/total_gy)
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: "Woman"
+
+list(
+  # icon = "calendar-week",
+  color = "warning",
+  value = label_percent(accuracy = 0.1)(females_gy$n/total_gy)
+)
+```
+
+### Row {height="40%"}
+
+```{r}
+#| title: Protected Areas
+
+ld_gy |> count(Protected_Area) |> 
+  mutate(prop = n / sum(n) *100) |> 
+  mutate(ypos = cumsum(prop)- 0.5*prop ) |> 
+
+  ggplot(aes(x="", y=prop, fill=Protected_Area)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void()
+
+```
+
+### Row {height="40%" .tabset}
+
+```{r}
+#| title: Competence of Skills for Men
+
+
+ld_m_gy <- ld |> filter(Pais=="Guyana", Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males_gy  <- as.data.frame(ld_m_gy[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_males_gy[,y] <- factor(scores_Compet_males_gy[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_males_gy) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_males_gy) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+# ld_col |> filter(Genero=="Masculino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+```{r}
+#| title: Competence of Skills for Women
+
+
+ld_f_gy <- ld |> filter(Pais=="Guyana", Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females_gy  <- as.data.frame(ld_f_gy[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females_gy[,y] <- factor(scores_Compet_females_gy[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females_gy) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females_gy) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+
+
+# ld_col |> filter(Genero=="Femenino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+## Column {width="40%"}
+
+```{r}
+#| title: Assessment 
+
+# docs_col <- Corpus(VectorSource(na.omit(ld_col$needs)))
+# # Convertir a letras minúsculas el texto.
+# docs_col <- tm_map(docs_col, content_transformer(tolower))
+# # Remover números
+# docs_col <- tm_map(docs_col, removeNumbers)
+# # Remover stopwords comunes
+# docs_col <- tm_map(docs_col, removeWords, stopwords("spanish"))
+# # Remover una palabra en particular.
+# # Se especifica las stopwords como un vector de caracteres.
+# # docs_col <- tm_map(docs_col, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+# 
+# # remover signos de puntuación
+# # docs_col <- tm_map(docs_col, removePunctuation)
+# # Eliminar espacios en blanco extras.
+# docs_col <- tm_map(docs_col, stripWhitespace)
+# 
+# a <- data.frame(text=sapply(docs_col, identity), 
+#                         stringsAsFactors=F)
+# 
+# b <- a |> unnest_tokens(output = sentence, 
+#                         input = text, 
+#                         token = "sentences")
+# 
+# datatable(b)
+
+# #crear matriz documento de términos
+# dtm_col <- TermDocumentMatrix(docs_col)
+# matriz_col <- as.matrix(dtm_col)
+# # ordenar filas de la matriz en orden descendente
+# v_col <- sort(rowSums(matriz_col),decreasing=TRUE)
+# # convertir a data frame
+# d_col <- data.frame(word = names(v),freq=v)
+# # mostrar los primeros 10 términos que más se repiten
+# # head(d, 10)
+# wordcloud2(data=d_col, size = 0.5)
+#   
+
+
+
+```
+
+
+
+
+
+
+# Surinam {orientation="columns"}
+
+## Column {width="60%"}
+
+```{r}
+#| label: Surinam-values
+#| results: hide
+
+ld_su <- ld |>
+  filter(Pais == "Surinam")
+
+n_respondants_su <- nrow(ld_su)
+
+n_Genero_su <- ld_su |>
+  count(Genero)  
+
+males_su <- n_Genero_su[2,2]
+females_su <- n_Genero_su[1,2]
+
+total_su <- sum(n_Genero_su$n)
+
+```
+
+### Row {height="20%"}
+
+```{r}
+#| component: valuebox
+#| title: "Total"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = (total_su)
+)
+```
+
+
+```{r}
+#| component: valuebox
+#| title: "Man"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = label_percent(accuracy = 1)(males_su$n/total_su)
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: "Woman"
+
+list(
+  # icon = "calendar-week",
+  color = "warning",
+  value = label_percent(accuracy = 0.1)(females_su$n/total_su)
+)
+```
+
+### Row {height="40%"}
+
+```{r}
+#| title: Protected Areas
+
+ld_su |> count(Protected_Area) |> 
+  mutate(prop = n / sum(n) *100) |> 
+  mutate(ypos = cumsum(prop)- 0.5*prop ) |> 
+
+  ggplot(aes(x="", y=prop, fill=Protected_Area)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void()
+
+```
+
+### Row {height="40%" .tabset}
+
+```{r}
+#| title: Competence of Skills for Men
+
+
+ld_m_su <- ld |> filter(Pais=="Surinam", Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males_su  <- as.data.frame(ld_m_su[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_males_su[,y] <- factor(scores_Compet_males_su[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_males_su) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_males_su) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+# ld_col |> filter(Genero=="Masculino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+```{r}
+#| title: Competence of Skills for Women
+
+
+ld_f_su <- ld |> filter(Pais=="Surinam", Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females_su  <- as.data.frame(ld_f_su[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females_su[,y] <- factor(scores_Compet_females_su[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females_su) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females_su) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+
+
+# ld_col |> filter(Genero=="Femenino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+## Column {width="40%"}
+
+```{r}
+#| title: Assessment 
+
+# docs_col <- Corpus(VectorSource(na.omit(ld_col$needs)))
+# # Convertir a letras minúsculas el texto.
+# docs_col <- tm_map(docs_col, content_transformer(tolower))
+# # Remover números
+# docs_col <- tm_map(docs_col, removeNumbers)
+# # Remover stopwords comunes
+# docs_col <- tm_map(docs_col, removeWords, stopwords("spanish"))
+# # Remover una palabra en particular.
+# # Se especifica las stopwords como un vector de caracteres.
+# # docs_col <- tm_map(docs_col, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+# 
+# # remover signos de puntuación
+# # docs_col <- tm_map(docs_col, removePunctuation)
+# # Eliminar espacios en blanco extras.
+# docs_col <- tm_map(docs_col, stripWhitespace)
+# 
+# a <- data.frame(text=sapply(docs_col, identity), 
+#                         stringsAsFactors=F)
+# 
+# b <- a |> unnest_tokens(output = sentence, 
+#                         input = text, 
+#                         token = "sentences")
+# 
+# datatable(b)
+
+# #crear matriz documento de términos
+# dtm_col <- TermDocumentMatrix(docs_col)
+# matriz_col <- as.matrix(dtm_col)
+# # ordenar filas de la matriz en orden descendente
+# v_col <- sort(rowSums(matriz_col),decreasing=TRUE)
+# # convertir a data frame
+# d_col <- data.frame(word = names(v),freq=v)
+# # mostrar los primeros 10 términos que más se repiten
+# # head(d, 10)
+# wordcloud2(data=d_col, size = 0.5)
+#   
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
