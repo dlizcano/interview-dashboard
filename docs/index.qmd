@@ -338,7 +338,7 @@ ld |> group_by(Genero) |>
 
 
 ```{r}
-#| title: Assesment
+#| title: Assesment of Skills
 
 # ld |> count(Pais) |> 
 #   mutate(prop = n / sum(n) *100) |> 
@@ -384,10 +384,92 @@ Assesment_Table
 ```
 
 
-## Row {height="40%"}
+## Row {height="40%" .tabset}
 
 ```{r}
-#| title: Competence of Skills for Men
+#| title: Relevance for Men
+
+ld_m <- ld |> filter(Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males  <- as.data.frame(ld_m[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+Skills_short <- c(
+"Leader, Manag",
+"Self-Motiv",
+"Prob-Solv, Deci-Mak",
+"Organizat Manag",
+"Emo Intellig",
+"Comm Rights and Comm",
+"Comm Inf and Ideas" ,
+"Negot and Resol Confl" ,
+"Desc Nat and Cult Val",
+"Strat and Threat Mangmt",
+"Ranger Safety Protec" 
+)
+
+# change names
+names(scores_Rel_males) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males[,y] <-  factor(scores_Rel_males[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_f <- ld |> filter(Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females  <- as.data.frame(ld_f[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+Skills_short <- c(
+"Leader, Manag",
+"Self-Motiv",
+"Prob-Solv, Deci-Mak",
+"Organizat Manag",
+"Emo Intellig",
+"Comm Rights and Comm",
+"Comm Inf and Ideas" ,
+"Negot and Resol Confl" ,
+"Desc Nat and Cult Val",
+"Strat and Threat Mangmt",
+"Ranger Safety Protec" 
+)
+
+# change names
+names(scores_Rel_females) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females[,y] <-  factor(scores_Rel_females[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Competence for Men
 
 ld_m <- ld |> filter(Genero=="Masculino") |> f.assesment() 
 
@@ -435,7 +517,7 @@ plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALS
 ```
 
 ```{r}
-#| title: Competence of Skills for Women
+#| title: Competence for Women
 
 
 ld_f <- ld |> filter(Genero=="Femenino") |> f.assesment() 
