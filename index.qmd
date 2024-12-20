@@ -7,7 +7,9 @@ format:
 logo: images/logo.png
 theme: [sandstone, theme/custom.scss]
 fig-width: 10
-fig-asp: 0.3
+fig-height: 9
+fig-asp: 0.45
+#fig-asp: 0.3
 params:
   month: "October"
   year: "2023"
@@ -32,6 +34,8 @@ library(gtExtras)
 library(kableExtra)
 library(tm)
 library(wordcloud2)
+library(likert)
+
 library(tidytext)
 
 theme_set(theme_minimal(base_size = 24, base_family = "Atkinson Hyperlegible"))
@@ -55,6 +59,29 @@ thecnical <- mean(
 interpersonal <- mean(
   as.numeric(ld$`capacitacion en blandas`), na.rm = TRUE
  )
+
+####################################
+f.assesment <- function(ld) {
+  #### LOOP
+  for(i in 1:11){
+    # Relevance_skill_1
+    names(category_relevance) <- c(paste("Relevance_skill_",i, sep=""), 
+                                   paste("score_Relev_",i, sep=""))
+    
+    # Competence_skill_1
+    names(category_competence) <- c(paste("Competence_skill_",i, sep=""), 
+                                    paste("score_Compet_",i, sep=""))
+    
+    # fix -1 
+    ld <- ld %>%
+      left_join(category_relevance) |> left_join(category_competence)
+    
+  } #close loop
+  
+return(ld[,seq(from=dim(ld)[2]-21, to=dim(ld)[2], by=1)]) #Return just last 22
+
+  }
+
 
 
 ```
@@ -163,21 +190,24 @@ Skills <- c(
 
 assesment$Skills <- as.vector(Skills)
 
-Assesment_Table <- assesment |> kbl() |> 
+Assesment_Table <- assesment |> 
+  arrange(desc(Relevance)) |> 
+  kbl() |> 
   kable_paper(full_width = T) |> 
-  kable_styling(font_size = 7) |> 
-  row_spec(c(1,5), bold = T, color = "white", background = "#D7261E") |> 
+  kable_styling(font_size = 7, "condensed") |> 
+  row_spec(c(1,10), bold = T) |> #, color = "white", background = "gray75")
   column_spec(1, color = "white",
               background = spec_color(assesment$Relevance[1:11], 
            end = 0.9,
            option = "plasma",
+           alpha=0.25,
            direction=-1),
-              popover = paste("am:", assesment$Skills[1:11])) |>  column_spec(2, color = "white",
-              background = spec_color(assesment$Competence[1:11], 
-           end = 0.9,
-           option = "plasma",
-           direction=-1),
-              popover = paste("am:", assesment$Skills[1:11]))
+              popover = paste("Relev:", assesment$Skills[1:11])) # |>  column_spec(2, color = "white",
+#              background = spec_color(assesment$Competence[1:11], 
+#           end = 0.9,
+#           option = "plasma",
+#           direction=1),
+#              popover = paste("Compet:", assesment$Skills[1:11]))
 
 
 
@@ -242,7 +272,7 @@ total <- sum(n_Genero$n)
 
 ```
 
-## Row {height="15%"}
+## Row {height="20%"}
 
 ```{r}
 #| content: valuebox
@@ -284,7 +314,10 @@ list(
 ```{r}
 #| title: Ages and Gender
 
-mean_age <- ld |> group_by(Genero) |> summarise(avg = mean(Age, na.rm = TRUE))
+mean_age <- ld |> 
+  #mutate() |> 
+  group_by(Genero) |> 
+  summarise(avg = mean(Age, na.rm = TRUE))
 
 
 ld |> group_by(Genero) |> 
@@ -292,8 +325,11 @@ ld |> group_by(Genero) |>
   #mutate(p = n / sum(n)) |>
   ggplot( aes(x=Age, fill=Genero)) +
   geom_histogram( alpha=0.7, position = 'identity', binwidth=1) +
+  # geom_density() + 
   # scale_fill_manual(values=c("#69b3a2", "#404080")) +
   labs(x = NULL) + 
+  labs(fill = "Gender") +
+  scale_fill_hue(labels = c("Women", "Men")) +
   geom_vline(xintercept = mean_age$avg, linetype="dotted", 
                 color = c("red", "blue" ), size=1.5)# +
   # scale_y_continuous(
@@ -308,7 +344,7 @@ ld |> group_by(Genero) |>
 
 
 ```{r}
-#| title: Assesment
+#| title: Assesment of Skills
 
 # ld |> count(Pais) |> 
 #   mutate(prop = n / sum(n) *100) |> 
@@ -354,21 +390,132 @@ Assesment_Table
 ```
 
 
-## Row {height="45%"}
+## Row {height="40%" .tabset}
 
 ```{r}
-#| title: Relvance of the Skill for Men
+#| title: Relevance for Men
 
-ld |> filter(Genero=="Masculino") |> 
-  count(Relevance_skill_1, Competence_skill_1) |>
-  ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
-  geom_col(position = "fill", color = "white") +
-  scale_fill_manual(
-    values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
-    guide = guide_legend(reverse = TRUE)
-  ) +
-  scale_x_continuous(labels = label_percent()) +
-  labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+ld_m <- ld |> filter(Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males  <- as.data.frame(ld_m[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+Skills_short <- c(
+"Leader, Manag",
+"Self-Motiv",
+"Prob-Solv, Deci-Mak",
+"Organizat Manag",
+"Emo Intellig",
+"Comm Rights and Comm",
+"Comm Inf and Ideas" ,
+"Negot and Resol Confl" ,
+"Desc Nat and Cult Val",
+"Strat and Threat Mangmt",
+"Ranger Safety Protec" 
+)
+
+# change names
+names(scores_Rel_males) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males[,y] <-  factor(scores_Rel_males[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_f <- ld |> filter(Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females  <- as.data.frame(ld_f[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+Skills_short <- c(
+"Leader, Manag",
+"Self-Motiv",
+"Prob-Solv, Deci-Mak",
+"Organizat Manag",
+"Emo Intellig",
+"Comm Rights and Comm",
+"Comm Inf and Ideas" ,
+"Negot and Resol Confl" ,
+"Desc Nat and Cult Val",
+"Strat and Threat Mangmt",
+"Ranger Safety Protec" 
+)
+
+# change names
+names(scores_Rel_females) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females[,y] <-  factor(scores_Rel_females[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Competence for Men
+
+ld_m <- ld |> filter(Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males  <- as.data.frame(ld_m[,c(2,4,6,8,10,12,14,16,18,20,22)]) |> 
+  mutate_all( factor)
+
+Skills_short <- c(
+"Leader, Manag",
+"Self-Motiv",
+"Prob-Solv, Deci-Mak",
+"Organizat Manag",
+"Emo Intellig",
+"Comm Rights and Comm",
+"Comm Inf and Ideas" ,
+"Negot and Resol Confl" ,
+"Desc Nat and Cult Val",
+"Strat and Threat Mangmt",
+"Ranger Safety Protec" 
+)
+
+# change names
+names(scores_Compet_males) <- Skills_short
+
+
+# Build plot
+p <- likert(scores_Compet_males) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+# |> 
+#   count(score_Relev_1, score_Compet_1) |>
+#   ggplot(aes(x = n, y = fct_rev(score_Relev_1), fill = score_Compet_1)) +
+#   geom_col(position = "fill", color = "white") +
+#   scale_fill_manual(
+#     values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#     guide = guide_legend(reverse = TRUE)
+#   ) +
+#   scale_x_continuous(labels = label_percent()) +
+#   labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
 
 
 
@@ -376,7 +523,25 @@ ld |> filter(Genero=="Masculino") |>
 ```
 
 ```{r}
-#| title: Relvance of the Skill for Women
+#| title: Competence for Women
+
+
+ld_f <- ld |> filter(Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females  <- as.data.frame(ld_f[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females[,y] <- factor(scores_Compet_females[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
 
 # ld_old |>
 #   count(maternal_age, delivery_method) |>
@@ -388,17 +553,17 @@ ld |> filter(Genero=="Masculino") |>
 #   ) +
 #   scale_x_continuous(labels = label_percent()) +
 #   labs(y = NULL, x = NULL)#, fill = "Delivery\nmethod")
-
-ld |> filter(Genero=="Femenino") |> 
-  count(Relevance_skill_1, Competence_skill_1) |>
-  ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
-  geom_col(position = "fill", color = "white") +
-  scale_fill_manual(
-    values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
-    guide = guide_legend(reverse = TRUE)
-  ) +
-  scale_x_continuous(labels = label_percent()) +
-  labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+# 
+# ld |> filter(Genero=="Femenino") |> 
+#   count(Relevance_skill_1, Competence_skill_1) |>
+#   ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#   geom_col(position = "fill", color = "white") +
+#   scale_fill_manual(
+#     values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#     guide = guide_legend(reverse = TRUE)
+#   ) +
+#   scale_x_continuous(labels = label_percent()) +
+#   labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
 
 ```
 
@@ -408,7 +573,7 @@ ld |> filter(Genero=="Femenino") |>
 ## Column {width="60%"}
 
 ```{r}
-#| label: vaginal-values
+#| label: Colombia-values
 #| results: hide
 
 ld_col <- ld |>
@@ -426,7 +591,7 @@ total_col <- sum(n_Genero_col$n)
 
 ```
 
-### Row {height="15%"}
+### Row {height="20%"}
 
 ```{r}
 #| component: valuebox
@@ -478,36 +643,131 @@ ld_col |> count(Protected_Area) |>
 
 ```
 
-### Row {height="45%" .tabset}
+### Row {height="40%" .tabset}
 
 ```{r}
-#| title: Relvance of the Skill Males
+#| title: Relevance for Men
 
-ld_col |> filter(Genero=="Masculino") |> 
-    count(Relevance_skill_1, Competence_skill_1) |>
-    ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
-    geom_col(position = "fill", color = "white") +
-    scale_fill_manual(
-        values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
-        guide = guide_legend(reverse = TRUE)
-    ) +
-    scale_x_continuous(labels = label_percent()) +
-    labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+ld_mc <- ld |> filter(Pais=="Colombia", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_c  <- as.data.frame(ld_mc[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_c) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_c[,y] <-  factor(scores_Rel_males_c[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_c) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fc <- ld |> filter(Pais=="Colombia",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_c  <- as.data.frame(ld_fc[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_c) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_c[,y] <-  factor(scores_Rel_females_c[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_c) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Competence for Men
+
+
+ld_m_C <- ld |> filter(Pais=="Colombia", Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males_C  <- as.data.frame(ld_m_C[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_males_C[,y] <- factor(scores_Compet_males_C[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_males_C) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_males_C) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+# ld_col |> filter(Genero=="Masculino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
 ```
 
 ```{r}
-#| title: Relvance of the Skill Women
+#| title: Competence for Women
 
-ld_col |> filter(Genero=="Femenino") |> 
-    count(Relevance_skill_1, Competence_skill_1) |>
-    ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
-    geom_col(position = "fill", color = "white") +
-    scale_fill_manual(
-        values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
-        guide = guide_legend(reverse = TRUE)
-    ) +
-    scale_x_continuous(labels = label_percent()) +
-    labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+
+ld_f_C <- ld |> filter(Pais=="Colombia", Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females_C  <- as.data.frame(ld_f_C[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females_C[,y] <- factor(scores_Compet_females_C[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females_C) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females_C) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+
+
+# ld_col |> filter(Genero=="Femenino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
 ```
 
 ## Column {width="40%"}
@@ -558,11 +818,1582 @@ ld_col |> filter(Genero=="Femenino") |>
 
 
 
+
+# Ecuador {orientation="columns"}
+
+## Column {width="60%"}
+
+```{r}
+#| label: Ecuador-values
+#| results: hide
+
+ld_ec <- ld |>
+  filter(Pais == "Ecuador")
+
+n_respondants_ec <- nrow(ld_ec)
+
+n_Genero_ec <- ld_ec |>
+  count(Genero)  
+
+males_ec <- n_Genero_ec[2,2]
+females_ec <- n_Genero_ec[1,2]
+
+total_ec <- sum(n_Genero_ec$n)
+
+```
+
+### Row {height="20%"}
+
+```{r}
+#| component: valuebox
+#| title: "Total"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = (total_ec)
+)
+```
+
+
+```{r}
+#| component: valuebox
+#| title: "Man"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = label_percent(accuracy = 1)(males_ec$n/total_ec)
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: "Woman"
+
+list(
+  # icon = "calendar-week",
+  color = "warning",
+  value = label_percent(accuracy = 0.1)(females_ec$n/total_ec)
+)
+```
+
+### Row {height="40%"}
+
+```{r}
+#| title: Protected Areas
+
+ld_ec |> count(Protected_Area) |> 
+  mutate(prop = n / sum(n) *100) |> 
+  mutate(ypos = cumsum(prop)- 0.5*prop ) |> 
+
+  ggplot(aes(x="", y=prop, fill=Protected_Area)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void()
+
+```
+
+### Row {height="40%" .tabset}
+
+```{r}
+#| title: Relevance for Men
+
+ld_me <- ld |> filter(Pais=="Ecuador", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_e  <- as.data.frame(ld_me[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_e) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_e[,y] <-  factor(scores_Rel_males_e[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_e) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fe <- ld |> filter(Pais=="Ecuador",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_e  <- as.data.frame(ld_fe[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_e) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_e[,y] <-  factor(scores_Rel_females_e[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_e) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+
+```{r}
+#| title: Competence for Men
+
+
+ld_m_E <- ld |> filter(Pais=="Ecuador", Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males_E  <- as.data.frame(ld_m_E[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_males_E[,y] <- factor(scores_Compet_males_E[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_males_E) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_males_E) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+# ld_col |> filter(Genero=="Masculino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+```{r}
+#| title: Competence for Women
+
+
+ld_f_E <- ld |> filter(Pais=="Ecuador", Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females_E  <- as.data.frame(ld_f_E[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females_E[,y] <- factor(scores_Compet_females_E[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females_E) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females_E) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+
+
+# ld_col |> filter(Genero=="Femenino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+## Column {width="40%"}
+
+```{r}
+#| title: Assessment 
+
+# docs_col <- Corpus(VectorSource(na.omit(ld_col$needs)))
+# # Convertir a letras minúsculas el texto.
+# docs_col <- tm_map(docs_col, content_transformer(tolower))
+# # Remover números
+# docs_col <- tm_map(docs_col, removeNumbers)
+# # Remover stopwords comunes
+# docs_col <- tm_map(docs_col, removeWords, stopwords("spanish"))
+# # Remover una palabra en particular.
+# # Se especifica las stopwords como un vector de caracteres.
+# # docs_col <- tm_map(docs_col, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+# 
+# # remover signos de puntuación
+# # docs_col <- tm_map(docs_col, removePunctuation)
+# # Eliminar espacios en blanco extras.
+# docs_col <- tm_map(docs_col, stripWhitespace)
+# 
+# a <- data.frame(text=sapply(docs_col, identity), 
+#                         stringsAsFactors=F)
+# 
+# b <- a |> unnest_tokens(output = sentence, 
+#                         input = text, 
+#                         token = "sentences")
+# 
+# datatable(b)
+
+# #crear matriz documento de términos
+# dtm_col <- TermDocumentMatrix(docs_col)
+# matriz_col <- as.matrix(dtm_col)
+# # ordenar filas de la matriz en orden descendente
+# v_col <- sort(rowSums(matriz_col),decreasing=TRUE)
+# # convertir a data frame
+# d_col <- data.frame(word = names(v),freq=v)
+# # mostrar los primeros 10 términos que más se repiten
+# # head(d, 10)
+# wordcloud2(data=d_col, size = 0.5)
+#   
+
+
+
+```
+
+
+
+
+
+
+
+# Perú {orientation="columns"}
+
+## Column {width="60%"}
+
+```{r}
+#| label: Peru-values
+#| results: hide
+
+ld_pe <- ld |>
+  filter(Pais == "Perú")
+
+n_respondants_pe <- nrow(ld_pe)
+
+n_Genero_pe <- ld_pe |>
+  count(Genero)  
+
+males_pe <- n_Genero_pe[2,2]
+females_pe <- n_Genero_pe[1,2]
+
+total_pe <- sum(n_Genero_pe$n)
+
+```
+
+### Row {height="20%"}
+
+```{r}
+#| component: valuebox
+#| title: "Total"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = (total_pe)
+)
+```
+
+
+```{r}
+#| component: valuebox
+#| title: "Man"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = label_percent(accuracy = 1)(males_pe$n/total_pe)
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: "Woman"
+
+list(
+  # icon = "calendar-week",
+  color = "warning",
+  value = label_percent(accuracy = 0.1)(females_pe$n/total_pe)
+)
+```
+
+### Row {height="40%"}
+
+```{r}
+#| title: Protected Areas
+
+ld_pe |> count(Protected_Area) |> 
+  mutate(prop = n / sum(n) *100) |> 
+  mutate(ypos = cumsum(prop)- 0.5*prop ) |> 
+
+  ggplot(aes(x="", y=prop, fill=Protected_Area)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void()
+
+```
+
+### Row {height="40%" .tabset}
+
+```{r}
+#| title: Relevance for Men
+
+ld_mp <- ld |> filter(Pais=="Perú", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_p  <- as.data.frame(ld_mp[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_p) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_p[,y] <-  factor(scores_Rel_males_p[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_p) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fp <- ld |> filter(Pais=="Perú",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_p  <- as.data.frame(ld_fp[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_p) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_p[,y] <-  factor(scores_Rel_females_p[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_p) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Competence for Men
+
+
+ld_m_P <- ld |> filter(Pais=="Perú", Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males_P  <- as.data.frame(ld_m_P[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_males_P[,y] <- factor(scores_Compet_males_P[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_males_P) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_males_P) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+# ld_col |> filter(Genero=="Masculino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+```{r}
+#| title: Competence for Women
+
+
+ld_f_P <- ld |> filter(Pais=="Perú", Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females_P  <- as.data.frame(ld_f_P[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females_P[,y] <- factor(scores_Compet_females_P[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females_P) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females_P) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+
+
+# ld_col |> filter(Genero=="Femenino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+## Column {width="40%"}
+
+```{r}
+#| title: Assessment 
+
+# docs_col <- Corpus(VectorSource(na.omit(ld_col$needs)))
+# # Convertir a letras minúsculas el texto.
+# docs_col <- tm_map(docs_col, content_transformer(tolower))
+# # Remover números
+# docs_col <- tm_map(docs_col, removeNumbers)
+# # Remover stopwords comunes
+# docs_col <- tm_map(docs_col, removeWords, stopwords("spanish"))
+# # Remover una palabra en particular.
+# # Se especifica las stopwords como un vector de caracteres.
+# # docs_col <- tm_map(docs_col, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+# 
+# # remover signos de puntuación
+# # docs_col <- tm_map(docs_col, removePunctuation)
+# # Eliminar espacios en blanco extras.
+# docs_col <- tm_map(docs_col, stripWhitespace)
+# 
+# a <- data.frame(text=sapply(docs_col, identity), 
+#                         stringsAsFactors=F)
+# 
+# b <- a |> unnest_tokens(output = sentence, 
+#                         input = text, 
+#                         token = "sentences")
+# 
+# datatable(b)
+
+# #crear matriz documento de términos
+# dtm_col <- TermDocumentMatrix(docs_col)
+# matriz_col <- as.matrix(dtm_col)
+# # ordenar filas de la matriz en orden descendente
+# v_col <- sort(rowSums(matriz_col),decreasing=TRUE)
+# # convertir a data frame
+# d_col <- data.frame(word = names(v),freq=v)
+# # mostrar los primeros 10 términos que más se repiten
+# # head(d, 10)
+# wordcloud2(data=d_col, size = 0.5)
+#   
+
+
+
+```
+
+# Bolivia {orientation="columns"}
+
+## Column {width="60%"}
+
+```{r}
+#| label: Bolivia-values
+#| results: hide
+
+ld_bo <- ld |>
+  filter(Pais == "Bolivia")
+
+n_respondants_bo <- nrow(ld_bo)
+
+n_Genero_bo <- ld_bo |>
+  count(Genero)  
+
+males_bo <- n_Genero_bo[2,2]
+females_bo <- n_Genero_bo[1,2]
+
+total_bo <- sum(n_Genero_bo$n)
+
+```
+
+### Row {height="20%"}
+
+```{r}
+#| component: valuebox
+#| title: "Total"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = (total_bo)
+)
+```
+
+
+```{r}
+#| component: valuebox
+#| title: "Man"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = label_percent(accuracy = 1)(males_bo$n/total_bo)
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: "Woman"
+
+list(
+  # icon = "calendar-week",
+  color = "warning",
+  value = label_percent(accuracy = 0.1)(females_bo$n/total_bo)
+)
+```
+
+### Row {height="40%"}
+
+```{r}
+#| title: Protected Areas
+
+ld_bo |> count(Protected_Area) |> 
+  mutate(prop = n / sum(n) *100) |> 
+  mutate(ypos = cumsum(prop)- 0.5*prop ) |> 
+
+  ggplot(aes(x="", y=prop, fill=Protected_Area)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void()
+
+```
+
+### Row {height="40%" .tabset}
+
+```{r}
+#| title: Relevance for Men
+
+ld_mb <- ld |> filter(Pais=="Bolivia", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_b  <- as.data.frame(ld_mb[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_b) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_b[,y] <-  factor(scores_Rel_males_b[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_b) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fb <- ld |> filter(Pais=="Bolivia",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_b  <- as.data.frame(ld_fb[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_b) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_b[,y] <-  factor(scores_Rel_females_b[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_b) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Competence for Men
+
+
+ld_m_B <- ld |> filter(Pais=="Bolivia", Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males_B  <- as.data.frame(ld_m_B[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_males_B[,y] <- factor(scores_Compet_males_B[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_males_B) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_males_B) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+# ld_col |> filter(Genero=="Masculino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+```{r}
+#| title: Competence for Women
+
+
+ld_f_B <- ld |> filter(Pais=="Bolivia", Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females_B  <- as.data.frame(ld_f_B[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females_B[,y] <- factor(scores_Compet_females_B[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females_B) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females_B) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+
+
+# ld_col |> filter(Genero=="Femenino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+## Column {width="40%"}
+
+```{r}
+#| title: Assessment 
+
+# docs_col <- Corpus(VectorSource(na.omit(ld_col$needs)))
+# # Convertir a letras minúsculas el texto.
+# docs_col <- tm_map(docs_col, content_transformer(tolower))
+# # Remover números
+# docs_col <- tm_map(docs_col, removeNumbers)
+# # Remover stopwords comunes
+# docs_col <- tm_map(docs_col, removeWords, stopwords("spanish"))
+# # Remover una palabra en particular.
+# # Se especifica las stopwords como un vector de caracteres.
+# # docs_col <- tm_map(docs_col, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+# 
+# # remover signos de puntuación
+# # docs_col <- tm_map(docs_col, removePunctuation)
+# # Eliminar espacios en blanco extras.
+# docs_col <- tm_map(docs_col, stripWhitespace)
+# 
+# a <- data.frame(text=sapply(docs_col, identity), 
+#                         stringsAsFactors=F)
+# 
+# b <- a |> unnest_tokens(output = sentence, 
+#                         input = text, 
+#                         token = "sentences")
+# 
+# datatable(b)
+
+# #crear matriz documento de términos
+# dtm_col <- TermDocumentMatrix(docs_col)
+# matriz_col <- as.matrix(dtm_col)
+# # ordenar filas de la matriz en orden descendente
+# v_col <- sort(rowSums(matriz_col),decreasing=TRUE)
+# # convertir a data frame
+# d_col <- data.frame(word = names(v),freq=v)
+# # mostrar los primeros 10 términos que más se repiten
+# # head(d, 10)
+# wordcloud2(data=d_col, size = 0.5)
+#   
+
+
+
+```
+
+
+
+
+# Brasil {orientation="columns"}
+
+## Column {width="60%"}
+
+```{r}
+#| label: Brasil-values
+#| results: hide
+
+ld_br <- ld |>
+  filter(Pais == "Brasil")
+
+n_respondants_br <- nrow(ld_bo)
+
+n_Genero_br <- ld_br |>
+  count(Genero)  
+
+males_br <- n_Genero_br[2,2]
+females_br <- n_Genero_br[1,2]
+
+total_br <- sum(n_Genero_br$n)
+
+```
+
+### Row {height="20%"}
+
+```{r}
+#| component: valuebox
+#| title: "Total"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = (total_br)
+)
+```
+
+
+```{r}
+#| component: valuebox
+#| title: "Man"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = label_percent(accuracy = 1)(males_br$n/total_br)
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: "Woman"
+
+list(
+  # icon = "calendar-week",
+  color = "warning",
+  value = label_percent(accuracy = 0.1)(females_br$n/total_br)
+)
+```
+
+### Row {height="40%"}
+
+```{r}
+#| title: Protected Areas
+
+ld_br |> count(Protected_Area) |> 
+  mutate(prop = n / sum(n) *100) |> 
+  mutate(ypos = cumsum(prop)- 0.5*prop ) |> 
+
+  ggplot(aes(x="", y=prop, fill=Protected_Area)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void()
+
+```
+
+### Row {height="40%" .tabset}
+
+```{r}
+#| title: Relevance for Men
+
+ld_mbr <- ld |> filter(Pais=="Brasil", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_br  <- as.data.frame(ld_mbr[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_br) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_br[,y] <-  factor(scores_Rel_males_br[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_br) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fbr <- ld |> filter(Pais=="Brasil",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_br  <- as.data.frame(ld_fbr[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_br) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_br[,y] <-  factor(scores_Rel_females_br[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_br) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+
+
+```{r}
+#| title: Competence for Men
+
+
+ld_m_Br <- ld |> filter(Pais=="Brasil", Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males_Br  <- as.data.frame(ld_m_Br[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_males_Br[,y] <- factor(scores_Compet_males_Br[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_males_Br) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_males_Br) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+# ld_col |> filter(Genero=="Masculino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+```{r}
+#| title: Competence for Women
+
+
+ld_f_Br <- ld |> filter(Pais=="Brasil", Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females_Br  <- as.data.frame(ld_f_Br[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females_Br[,y] <- factor(scores_Compet_females_Br[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females_Br) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females_Br) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+
+
+# ld_col |> filter(Genero=="Femenino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+## Column {width="40%"}
+
+```{r}
+#| title: Assessment 
+
+# docs_col <- Corpus(VectorSource(na.omit(ld_col$needs)))
+# # Convertir a letras minúsculas el texto.
+# docs_col <- tm_map(docs_col, content_transformer(tolower))
+# # Remover números
+# docs_col <- tm_map(docs_col, removeNumbers)
+# # Remover stopwords comunes
+# docs_col <- tm_map(docs_col, removeWords, stopwords("spanish"))
+# # Remover una palabra en particular.
+# # Se especifica las stopwords como un vector de caracteres.
+# # docs_col <- tm_map(docs_col, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+# 
+# # remover signos de puntuación
+# # docs_col <- tm_map(docs_col, removePunctuation)
+# # Eliminar espacios en blanco extras.
+# docs_col <- tm_map(docs_col, stripWhitespace)
+# 
+# a <- data.frame(text=sapply(docs_col, identity), 
+#                         stringsAsFactors=F)
+# 
+# b <- a |> unnest_tokens(output = sentence, 
+#                         input = text, 
+#                         token = "sentences")
+# 
+# datatable(b)
+
+# #crear matriz documento de términos
+# dtm_col <- TermDocumentMatrix(docs_col)
+# matriz_col <- as.matrix(dtm_col)
+# # ordenar filas de la matriz en orden descendente
+# v_col <- sort(rowSums(matriz_col),decreasing=TRUE)
+# # convertir a data frame
+# d_col <- data.frame(word = names(v),freq=v)
+# # mostrar los primeros 10 términos que más se repiten
+# # head(d, 10)
+# wordcloud2(data=d_col, size = 0.5)
+#   
+
+
+
+```
+
+
+
+
+# Guyana {orientation="columns"}
+
+## Column {width="60%"}
+
+```{r}
+#| label: Guyana-values
+#| results: hide
+
+ld_gy <- ld |>
+  filter(Pais == "Guyana")
+
+n_respondants_gy <- nrow(ld_gy)
+
+n_Genero_gy <- ld_gy |>
+  count(Genero)  
+
+males_gy <- n_Genero_gy[2,2]
+females_gy <- n_Genero_gy[1,2]
+
+total_gy <- sum(n_Genero_gy$n)
+
+```
+
+### Row {height="20%"}
+
+```{r}
+#| component: valuebox
+#| title: "Total"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = (total_gy)
+)
+```
+
+
+```{r}
+#| component: valuebox
+#| title: "Man"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = label_percent(accuracy = 1)(males_gy$n/total_gy)
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: "Woman"
+
+list(
+  # icon = "calendar-week",
+  color = "warning",
+  value = label_percent(accuracy = 0.1)(females_gy$n/total_gy)
+)
+```
+
+### Row {height="40%"}
+
+```{r}
+#| title: Protected Areas
+
+ld_gy |> count(Protected_Area) |> 
+  mutate(prop = n / sum(n) *100) |> 
+  mutate(ypos = cumsum(prop)- 0.5*prop ) |> 
+
+  ggplot(aes(x="", y=prop, fill=Protected_Area)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void()
+
+```
+
+### Row {height="40%" .tabset}
+
+```{r}
+#| title: Relevance for Men
+
+ld_mg <- ld |> filter(Pais=="Guyana", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_g  <- as.data.frame(ld_mg[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_g) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_g[,y] <-  factor(scores_Rel_males_g[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_g) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fg <- ld |> filter(Pais=="Guyana",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_g  <- as.data.frame(ld_fg[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_g) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_g[,y] <-  factor(scores_Rel_females_g[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_g) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+
+```{r}
+#| title: Competence for Men
+
+
+ld_m_gy <- ld |> filter(Pais=="Guyana", Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males_gy  <- as.data.frame(ld_m_gy[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_males_gy[,y] <- factor(scores_Compet_males_gy[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_males_gy) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_males_gy) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+# ld_col |> filter(Genero=="Masculino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+```{r}
+#| title: Competence for Women
+
+
+ld_f_gy <- ld |> filter(Pais=="Guyana", Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females_gy  <- as.data.frame(ld_f_gy[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females_gy[,y] <- factor(scores_Compet_females_gy[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females_gy) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females_gy) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+
+
+# ld_col |> filter(Genero=="Femenino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+## Column {width="40%"}
+
+```{r}
+#| title: Assessment 
+
+# docs_col <- Corpus(VectorSource(na.omit(ld_col$needs)))
+# # Convertir a letras minúsculas el texto.
+# docs_col <- tm_map(docs_col, content_transformer(tolower))
+# # Remover números
+# docs_col <- tm_map(docs_col, removeNumbers)
+# # Remover stopwords comunes
+# docs_col <- tm_map(docs_col, removeWords, stopwords("spanish"))
+# # Remover una palabra en particular.
+# # Se especifica las stopwords como un vector de caracteres.
+# # docs_col <- tm_map(docs_col, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+# 
+# # remover signos de puntuación
+# # docs_col <- tm_map(docs_col, removePunctuation)
+# # Eliminar espacios en blanco extras.
+# docs_col <- tm_map(docs_col, stripWhitespace)
+# 
+# a <- data.frame(text=sapply(docs_col, identity), 
+#                         stringsAsFactors=F)
+# 
+# b <- a |> unnest_tokens(output = sentence, 
+#                         input = text, 
+#                         token = "sentences")
+# 
+# datatable(b)
+
+# #crear matriz documento de términos
+# dtm_col <- TermDocumentMatrix(docs_col)
+# matriz_col <- as.matrix(dtm_col)
+# # ordenar filas de la matriz en orden descendente
+# v_col <- sort(rowSums(matriz_col),decreasing=TRUE)
+# # convertir a data frame
+# d_col <- data.frame(word = names(v),freq=v)
+# # mostrar los primeros 10 términos que más se repiten
+# # head(d, 10)
+# wordcloud2(data=d_col, size = 0.5)
+#   
+
+
+
+```
+
+
+
+
+
+
+# Surinam {orientation="columns"}
+
+## Column {width="60%"}
+
+```{r}
+#| label: Surinam-values
+#| results: hide
+
+ld_su <- ld |>
+  filter(Pais == "Surinam")
+
+n_respondants_su <- nrow(ld_su)
+
+n_Genero_su <- ld_su |>
+  count(Genero)  
+
+males_su <- n_Genero_su[2,2]
+females_su <- n_Genero_su[1,2]
+
+total_su <- sum(n_Genero_su$n)
+
+```
+
+### Row {height="20%"}
+
+```{r}
+#| component: valuebox
+#| title: "Total"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = (total_su)
+)
+```
+
+
+```{r}
+#| component: valuebox
+#| title: "Man"
+
+list(
+  # icon = "file-medical",
+  color = "primary",
+  value = label_percent(accuracy = 1)(males_su$n/total_su)
+)
+```
+
+```{r}
+#| component: valuebox
+#| title: "Woman"
+
+list(
+  # icon = "calendar-week",
+  color = "warning",
+  value = label_percent(accuracy = 0.1)(females_su$n/total_su)
+)
+```
+
+### Row {height="40%"}
+
+```{r}
+#| title: Protected Areas
+
+ld_su |> count(Protected_Area) |> 
+  mutate(prop = n / sum(n) *100) |> 
+  mutate(ypos = cumsum(prop)- 0.5*prop ) |> 
+
+  ggplot(aes(x="", y=prop, fill=Protected_Area)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void()
+
+```
+
+### Row {height="40%" .tabset}
+
+```{r}
+#| title: Relevance for Men
+
+ld_ms <- ld |> filter(Pais=="Surinam", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_s  <- as.data.frame(ld_ms[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_s) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_s[,y] <-  factor(scores_Rel_males_s[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_s) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fs <- ld |> filter(Pais=="Surinam",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_s  <- as.data.frame(ld_fs[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_s) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_s[,y] <-  factor(scores_Rel_females_s[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_s) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+
+```{r}
+#| title: Competence for Men
+
+
+ld_m_su <- ld |> filter(Pais=="Surinam", Genero=="Masculino") |> f.assesment() 
+
+scores_Compet_males_su  <- as.data.frame(ld_m_su[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_males_su[,y] <- factor(scores_Compet_males_su[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_males_su) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_males_su) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+# ld_col |> filter(Genero=="Masculino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+```{r}
+#| title: Competence for Women
+
+
+ld_f_su <- ld |> filter(Pais=="Surinam", Genero=="Femenino") |> f.assesment() 
+
+scores_Compet_females_su  <- as.data.frame(ld_f_su[,c(2,4,6,8,10,12,14,16,18,20,22)]) 
+
+#make factors =4
+for(y in 1:11){
+  scores_Compet_females_su[,y] <- factor(scores_Compet_females_su[,y], 
+                                      levels=c("1","2", "3", "4"))
+}
+
+# change names
+names(scores_Compet_females_su) <- Skills_short
+
+# Build plot
+p <- likert(scores_Compet_females_su) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, panel.arrange = "v")
+
+
+
+
+
+# ld_col |> filter(Genero=="Femenino") |> 
+#     count(Relevance_skill_1, Competence_skill_1) |>
+#     ggplot(aes(x = n, y = fct_rev(Relevance_skill_1), fill = Competence_skill_1)) +
+#     geom_col(position = "fill", color = "white") +
+#     scale_fill_manual(
+#         values = c("#ae8b2d", "#0e2635", "#873e23", "#abdbe3"),
+#         guide = guide_legend(reverse = TRUE)
+#     ) +
+#     scale_x_continuous(labels = label_percent()) +
+#     labs(y = NULL, x = NULL, fill = "Skill competence\nfor my role")
+```
+
+## Column {width="40%"}
+
+```{r}
+#| title: Assessment 
+
+# docs_col <- Corpus(VectorSource(na.omit(ld_col$needs)))
+# # Convertir a letras minúsculas el texto.
+# docs_col <- tm_map(docs_col, content_transformer(tolower))
+# # Remover números
+# docs_col <- tm_map(docs_col, removeNumbers)
+# # Remover stopwords comunes
+# docs_col <- tm_map(docs_col, removeWords, stopwords("spanish"))
+# # Remover una palabra en particular.
+# # Se especifica las stopwords como un vector de caracteres.
+# # docs_col <- tm_map(docs_col, removeWords, c("área", "protegida", "realizar", "actividades", "ambiental")) 
+# 
+# # remover signos de puntuación
+# # docs_col <- tm_map(docs_col, removePunctuation)
+# # Eliminar espacios en blanco extras.
+# docs_col <- tm_map(docs_col, stripWhitespace)
+# 
+# a <- data.frame(text=sapply(docs_col, identity), 
+#                         stringsAsFactors=F)
+# 
+# b <- a |> unnest_tokens(output = sentence, 
+#                         input = text, 
+#                         token = "sentences")
+# 
+# datatable(b)
+
+# #crear matriz documento de términos
+# dtm_col <- TermDocumentMatrix(docs_col)
+# matriz_col <- as.matrix(dtm_col)
+# # ordenar filas de la matriz en orden descendente
+# v_col <- sort(rowSums(matriz_col),decreasing=TRUE)
+# # convertir a data frame
+# d_col <- data.frame(word = names(v),freq=v)
+# # mostrar los primeros 10 términos que más se repiten
+# # head(d, 10)
+# wordcloud2(data=d_col, size = 0.5)
+#   
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Data
 
 ```{r}
 
-datatable(ld)
+ld[,1:12] |> kbl() |> 
+  kable_paper(full_width = T) |> 
+  kable_styling(font_size = 7)
 # ld |>  select(Edad, 
 #                         Service_years,
 #                         Agencia, 
