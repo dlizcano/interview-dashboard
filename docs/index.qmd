@@ -314,7 +314,10 @@ list(
 ```{r}
 #| title: Ages and Gender
 
-mean_age <- ld |> group_by(Genero) |> summarise(avg = mean(Age, na.rm = TRUE))
+mean_age <- ld |> 
+  #mutate() |> 
+  group_by(Genero) |> 
+  summarise(avg = mean(Age, na.rm = TRUE))
 
 
 ld |> group_by(Genero) |> 
@@ -322,8 +325,11 @@ ld |> group_by(Genero) |>
   #mutate(p = n / sum(n)) |>
   ggplot( aes(x=Age, fill=Genero)) +
   geom_histogram( alpha=0.7, position = 'identity', binwidth=1) +
+  # geom_density() + 
   # scale_fill_manual(values=c("#69b3a2", "#404080")) +
   labs(x = NULL) + 
+  labs(fill = "Gender") +
+  scale_fill_hue(labels = c("Women", "Men")) +
   geom_vline(xintercept = mean_age$avg, linetype="dotted", 
                 color = c("red", "blue" ), size=1.5)# +
   # scale_y_continuous(
@@ -640,7 +646,61 @@ ld_col |> count(Protected_Area) |>
 ### Row {height="40%" .tabset}
 
 ```{r}
-#| title: Competence of Skills for Men
+#| title: Relevance for Men
+
+ld_mc <- ld |> filter(Pais=="Colombia", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_c  <- as.data.frame(ld_mc[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_c) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_c[,y] <-  factor(scores_Rel_males_c[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_c) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fc <- ld |> filter(Pais=="Colombia",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_c  <- as.data.frame(ld_fc[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_c) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_c[,y] <-  factor(scores_Rel_females_c[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_c) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Competence for Men
 
 
 ld_m_C <- ld |> filter(Pais=="Colombia", Genero=="Masculino") |> f.assesment() 
@@ -674,7 +734,7 @@ plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALS
 ```
 
 ```{r}
-#| title: Competence of Skills for Women
+#| title: Competence for Women
 
 
 ld_f_C <- ld |> filter(Pais=="Colombia", Genero=="Femenino") |> f.assesment() 
@@ -837,7 +897,62 @@ ld_ec |> count(Protected_Area) |>
 ### Row {height="40%" .tabset}
 
 ```{r}
-#| title: Competence of Skills for Men
+#| title: Relevance for Men
+
+ld_me <- ld |> filter(Pais=="Ecuador", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_e  <- as.data.frame(ld_me[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_e) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_e[,y] <-  factor(scores_Rel_males_e[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_e) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fe <- ld |> filter(Pais=="Ecuador",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_e  <- as.data.frame(ld_fe[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_e) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_e[,y] <-  factor(scores_Rel_females_e[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_e) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+
+```{r}
+#| title: Competence for Men
 
 
 ld_m_E <- ld |> filter(Pais=="Ecuador", Genero=="Masculino") |> f.assesment() 
@@ -871,7 +986,7 @@ plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALS
 ```
 
 ```{r}
-#| title: Competence of Skills for Women
+#| title: Competence for Women
 
 
 ld_f_E <- ld |> filter(Pais=="Ecuador", Genero=="Femenino") |> f.assesment() 
@@ -1037,7 +1152,61 @@ ld_pe |> count(Protected_Area) |>
 ### Row {height="40%" .tabset}
 
 ```{r}
-#| title: Competence of Skills for Men
+#| title: Relevance for Men
+
+ld_mp <- ld |> filter(Pais=="Perú", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_p  <- as.data.frame(ld_mp[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_p) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_p[,y] <-  factor(scores_Rel_males_p[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_p) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fp <- ld |> filter(Pais=="Perú",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_p  <- as.data.frame(ld_fp[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_p) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_p[,y] <-  factor(scores_Rel_females_p[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_p) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Competence for Men
 
 
 ld_m_P <- ld |> filter(Pais=="Perú", Genero=="Masculino") |> f.assesment() 
@@ -1071,7 +1240,7 @@ plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALS
 ```
 
 ```{r}
-#| title: Competence of Skills for Women
+#| title: Competence for Women
 
 
 ld_f_P <- ld |> filter(Pais=="Perú", Genero=="Femenino") |> f.assesment() 
@@ -1231,7 +1400,61 @@ ld_bo |> count(Protected_Area) |>
 ### Row {height="40%" .tabset}
 
 ```{r}
-#| title: Competence of Skills for Men
+#| title: Relevance for Men
+
+ld_mb <- ld |> filter(Pais=="Bolivia", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_b  <- as.data.frame(ld_mb[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_b) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_b[,y] <-  factor(scores_Rel_males_b[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_b) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fb <- ld |> filter(Pais=="Bolivia",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_b  <- as.data.frame(ld_fb[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_b) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_b[,y] <-  factor(scores_Rel_females_b[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_b) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Competence for Men
 
 
 ld_m_B <- ld |> filter(Pais=="Bolivia", Genero=="Masculino") |> f.assesment() 
@@ -1265,7 +1488,7 @@ plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALS
 ```
 
 ```{r}
-#| title: Competence of Skills for Women
+#| title: Competence for Women
 
 
 ld_f_B <- ld |> filter(Pais=="Bolivia", Genero=="Femenino") |> f.assesment() 
@@ -1428,7 +1651,63 @@ ld_br |> count(Protected_Area) |>
 ### Row {height="40%" .tabset}
 
 ```{r}
-#| title: Competence of Skills for Men
+#| title: Relevance for Men
+
+ld_mbr <- ld |> filter(Pais=="Brasil", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_br  <- as.data.frame(ld_mbr[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_br) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_br[,y] <-  factor(scores_Rel_males_br[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_br) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fbr <- ld |> filter(Pais=="Brasil",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_br  <- as.data.frame(ld_fbr[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_br) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_br[,y] <-  factor(scores_Rel_females_br[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_br) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+
+
+```{r}
+#| title: Competence for Men
 
 
 ld_m_Br <- ld |> filter(Pais=="Brasil", Genero=="Masculino") |> f.assesment() 
@@ -1462,7 +1741,7 @@ plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALS
 ```
 
 ```{r}
-#| title: Competence of Skills for Women
+#| title: Competence for Women
 
 
 ld_f_Br <- ld |> filter(Pais=="Brasil", Genero=="Femenino") |> f.assesment() 
@@ -1625,7 +1904,62 @@ ld_gy |> count(Protected_Area) |>
 ### Row {height="40%" .tabset}
 
 ```{r}
-#| title: Competence of Skills for Men
+#| title: Relevance for Men
+
+ld_mg <- ld |> filter(Pais=="Guyana", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_g  <- as.data.frame(ld_mg[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_g) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_g[,y] <-  factor(scores_Rel_males_g[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_g) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fg <- ld |> filter(Pais=="Guyana",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_g  <- as.data.frame(ld_fg[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_g) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_g[,y] <-  factor(scores_Rel_females_g[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_g) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+
+```{r}
+#| title: Competence for Men
 
 
 ld_m_gy <- ld |> filter(Pais=="Guyana", Genero=="Masculino") |> f.assesment() 
@@ -1659,7 +1993,7 @@ plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALS
 ```
 
 ```{r}
-#| title: Competence of Skills for Women
+#| title: Competence for Women
 
 
 ld_f_gy <- ld |> filter(Pais=="Guyana", Genero=="Femenino") |> f.assesment() 
@@ -1824,7 +2158,62 @@ ld_su |> count(Protected_Area) |>
 ### Row {height="40%" .tabset}
 
 ```{r}
-#| title: Competence of Skills for Men
+#| title: Relevance for Men
+
+ld_ms <- ld |> filter(Pais=="Surinam", Genero=="Masculino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_males_s  <- as.data.frame(ld_ms[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_males_s) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_males_s[,y] <-  factor(scores_Rel_males_s[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_males_s) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+```{r}
+#| title: Relevance for Women
+
+ld_fs <- ld |> filter(Pais=="Surinam",Genero=="Femenino") |> f.assesment() 
+
+# select Relevance, replace NA by -1 and make factor
+scores_Rel_females_s  <- as.data.frame(ld_fs[,seq(1, 22, by = 2) ]) |> mutate(across(where(is.numeric), ~replace_na(., -1))) |> mutate_all(factor) 
+
+
+# change names
+names(scores_Rel_females_s) <- Skills_short
+
+#make factors =3
+for(y in 1:11){
+  scores_Rel_females_s[,y] <-  factor(scores_Rel_females_s[,y], 
+                          levels=c("-1","0", "1"))
+}
+
+
+# Build plot
+p <- likert(scores_Rel_females_s) 
+plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALSE, plot.percent.high = FALSE, plot.percent.neutral = FALSE, panel.arrange = "v", colors=c('orange','khaki', "tomato"))
+
+
+```
+
+
+
+```{r}
+#| title: Competence for Men
 
 
 ld_m_su <- ld |> filter(Pais=="Surinam", Genero=="Masculino") |> f.assesment() 
@@ -1858,7 +2247,7 @@ plot(p,  centered = TRUE, wrap = 50, wrap.grouping = 50, plot.percent.low = FALS
 ```
 
 ```{r}
-#| title: Competence of Skills for Women
+#| title: Competence for Women
 
 
 ld_f_su <- ld |> filter(Pais=="Surinam", Genero=="Femenino") |> f.assesment() 
