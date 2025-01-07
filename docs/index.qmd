@@ -197,19 +197,38 @@ Assesment_Table <- assesment |>
   kable_styling(font_size = 7, "condensed") |> 
   row_spec(c(1,10), bold = T) |> #, color = "white", background = "gray75")
   column_spec(1, color = "white",
-              background = spec_color(assesment$Relevance[1:11], 
-           end = 0.9,
-           option = "plasma",
-           alpha=0.25,
-           direction=-1),
-              popover = paste("Relev:", assesment$Skills[1:11])) # |>  column_spec(2, color = "white",
-#              background = spec_color(assesment$Competence[1:11], 
-#           end = 0.9,
-#           option = "plasma",
-#           direction=1),
-#              popover = paste("Compet:", assesment$Skills[1:11]))
+              background = spec_color(1:11, 
+           begin =0, end = 0.9,
+           option = "viridis",
+           #alpha=0.25,
+           #scale_from=2,
+           direction=1),
+              # popover = paste("Relev:", assesment$Skills[1:11])
+           )  |>  
+  column_spec(2, color = "white",
+              background = c( 
+  "#2E6F8EFF", 
+ "#BBDF27FF",
+ "#25838EFF", 
+"#433E85FF" ,
+"#1F9A8AFF" ,
+"#29AF7FFF" ,
+"#38588CFF", 
+"#4DC36BFF" ,
+ "#482072FF", 
+ "#440154FF" ,
+ "#7FD34EFF") , 
+#           #end = 0.5,
+#           option = "viridis",
+#           direction=-1),
+              #popover = paste("Compet:", assesment$Skills[1:11])
+           )
 
 
+
+
+
+  
 
 
 ```
@@ -276,7 +295,7 @@ total <- sum(n_Genero$n)
 
 ```{r}
 #| content: valuebox
-#| title: "Total respondant"
+#| title: "Total respondants"
 
 list(
   #icon = "person-bounding-box",
@@ -287,7 +306,7 @@ list(
 
 ```{r}
 #| content: valuebox
-#| title: "Man"
+#| title: "Men"
 
 list(
   #icon = "gender-male",
@@ -298,7 +317,7 @@ list(
 
 ```{r}
 #| content: valuebox
-#| title: "Woman"
+#| title: "Women"
 
 list(
   #icon = "gender-female",
@@ -402,11 +421,11 @@ scores_Rel_males  <- as.data.frame(ld_m[,seq(1, 22, by = 2) ]) |> mutate(across(
 
 
 Skills_short <- c(
-"Leader, Manag",
+"Leadership, Manag",
 "Self-Motiv",
 "Prob-Solv, Deci-Mak",
 "Organizat Manag",
-"Emo Intellig",
+"Emotional Intel",
 "Comm Rights and Comm",
 "Comm Inf and Ideas" ,
 "Negot and Resol Confl" ,
@@ -443,11 +462,11 @@ scores_Rel_females  <- as.data.frame(ld_f[,seq(1, 22, by = 2) ]) |> mutate(acros
 
 
 Skills_short <- c(
-"Leader, Manag",
+"Leadership, Manag",
 "Self-Motiv",
 "Prob-Solv, Deci-Mak",
 "Organizat Manag",
-"Emo Intellig",
+"Emotional Intel",
 "Comm Rights and Comm",
 "Comm Inf and Ideas" ,
 "Negot and Resol Confl" ,
@@ -483,11 +502,11 @@ scores_Compet_males  <- as.data.frame(ld_m[,c(2,4,6,8,10,12,14,16,18,20,22)]) |>
   mutate_all( factor)
 
 Skills_short <- c(
-"Leader, Manag",
+"Leadership, Manag",
 "Self-Motiv",
 "Prob-Solv, Deci-Mak",
 "Organizat Manag",
-"Emo Intellig",
+"Emotional Intel",
 "Comm Rights and Comm",
 "Comm Inf and Ideas" ,
 "Negot and Resol Confl" ,
@@ -611,7 +630,7 @@ total <- sum(n_Genero$n)
 
 ```{r}
 #| content: valuebox
-#| title: "Total respondant"
+#| title: "Total respondents"
 
 list(
   #icon = "person-bounding-box",
@@ -622,7 +641,7 @@ list(
 
 ```{r}
 #| content: valuebox
-#| title: "Man"
+#| title: "Men"
 
 list(
   #icon = "gender-male",
@@ -633,7 +652,7 @@ list(
 
 ```{r}
 #| content: valuebox
-#| title: "Woman"
+#| title: "Women"
 
 list(
   #icon = "gender-female",
@@ -757,19 +776,34 @@ Assesment_Ranger <- assesment |>
   kbl() |> 
   kable_paper(full_width = T) |> 
   kable_styling(font_size = 7, "condensed") |> 
-  row_spec(c(1,5), bold = T) # |> #, color = "white", background = "gray75")
-  # column_spec(1, color = "white",
-  #             background = spec_color(assesment$Relevance[1:11], 
-  #          end = 0.9,
-  #          option = "plasma",
-  #          alpha=0.25,
-  #          direction=-1),
-  #             popover = paste("Relev:", assesment$Skills[1:11])) # |>  column_spec(2, color = "white",
-#              background = spec_color(assesment$Competence[1:11], 
-#           end = 0.9,
-#           option = "plasma",
-#           direction=1),
-#              popover = paste("Compet:", assesment$Skills[1:11]))
+  row_spec(c(1,5), bold = T) |> #, color = "white", background = "gray75")
+  column_spec(1, color = "white",
+              background = spec_color(1:11, 
+           begin =0, end = 0.9,
+           option = "viridis",
+           #alpha=0.25,
+           #scale_from=2,
+           direction=1),
+              # popover = paste("Relev:", assesment$Skills[1:11])
+           )  |>  
+  column_spec(2, color = "white",
+              background = c( 
+  "#2E6F8EFF", 
+"#4DC36BFF" ,
+ "#25838EFF", 
+"#433E85FF" ,
+ "#440154FF" ,
+"#1F9A8AFF" ,
+"#29AF7FFF" ,
+"#BBDF27FF",
+"#38588CFF",  
+ "#482072FF", 
+ "#7FD34EFF") , 
+#           #end = 0.5,
+#           option = "viridis",
+#           direction=-1),
+              #popover = paste("Compet:", assesment$Skills[1:11])
+           )
 
 Assesment_Ranger
 
@@ -817,11 +851,11 @@ scores_Rel_males  <- as.data.frame(ld_m[,seq(1, 22, by = 2) ]) |> mutate(across(
 
 
 Skills_short <- c(
-"Leader, Manag",
+"Leadership, Manag",
 "Self-Motiv",
 "Prob-Solv, Deci-Mak",
 "Organizat Manag",
-"Emo Intellig",
+"Emotional Intel",
 "Comm Rights and Comm",
 "Comm Inf and Ideas" ,
 "Negot and Resol Confl" ,
@@ -858,11 +892,11 @@ scores_Rel_females  <- as.data.frame(ld_f[,seq(1, 22, by = 2) ]) |> mutate(acros
 
 
 Skills_short <- c(
-"Leader, Manag",
+"Leadership, Manag",
 "Self-Motiv",
 "Prob-Solv, Deci-Mak",
 "Organizat Manag",
-"Emo Intellig",
+"Emotional Intel",
 "Comm Rights and Comm",
 "Comm Inf and Ideas" ,
 "Negot and Resol Confl" ,
@@ -898,11 +932,11 @@ scores_Compet_males  <- as.data.frame(ld_m[,c(2,4,6,8,10,12,14,16,18,20,22)]) |>
   mutate_all( factor)
 
 Skills_short <- c(
-"Leader, Manag",
+"Leadership, Manag",
 "Self-Motiv",
 "Prob-Solv, Deci-Mak",
 "Organizat Manag",
-"Emo Intellig",
+"Emotional Intel",
 "Comm Rights and Comm",
 "Comm Inf and Ideas" ,
 "Negot and Resol Confl" ,
@@ -1023,7 +1057,7 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Man"
+#| title: "Men"
 
 list(
   # icon = "file-medical",
@@ -1034,12 +1068,12 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Woman"
+#| title: "Women"
 
 list(
   # icon = "calendar-week",
   color = "warning",
-  value = label_percent(accuracy = 0.1)(females_col$n/total_col)
+  value = label_percent(accuracy = 1)(females_col$n/total_col)
 )
 ```
 
@@ -1274,7 +1308,7 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Man"
+#| title: "Men"
 
 list(
   # icon = "file-medical",
@@ -1285,12 +1319,12 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Woman"
+#| title: "Women"
 
 list(
   # icon = "calendar-week",
   color = "warning",
-  value = label_percent(accuracy = 0.1)(females_ec$n/total_ec)
+  value = label_percent(accuracy = 1)(females_ec$n/total_ec)
 )
 ```
 
@@ -1529,7 +1563,7 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Man"
+#| title: "Men"
 
 list(
   # icon = "file-medical",
@@ -1540,12 +1574,12 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Woman"
+#| title: "Women"
 
 list(
   # icon = "calendar-week",
   color = "warning",
-  value = label_percent(accuracy = 0.1)(females_pe$n/total_pe)
+  value = label_percent(accuracy = 1)(females_pe$n/total_pe)
 )
 ```
 
@@ -1777,7 +1811,7 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Man"
+#| title: "Men"
 
 list(
   # icon = "file-medical",
@@ -1788,12 +1822,12 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Woman"
+#| title: "Women"
 
 list(
   # icon = "calendar-week",
   color = "warning",
-  value = label_percent(accuracy = 0.1)(females_bo$n/total_bo)
+  value = label_percent(accuracy = 1)(females_bo$n/total_bo)
 )
 ```
 
@@ -2028,7 +2062,7 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Man"
+#| title: "Men"
 
 list(
   # icon = "file-medical",
@@ -2039,12 +2073,12 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Woman"
+#| title: "Women"
 
 list(
   # icon = "calendar-week",
   color = "warning",
-  value = label_percent(accuracy = 0.1)(females_br$n/total_br)
+  value = label_percent(accuracy = 1)(females_br$n/total_br)
 )
 ```
 
@@ -2281,7 +2315,7 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Man"
+#| title: "Men"
 
 list(
   # icon = "file-medical",
@@ -2292,12 +2326,12 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Woman"
+#| title: "Women"
 
 list(
   # icon = "calendar-week",
   color = "warning",
-  value = label_percent(accuracy = 0.1)(females_gy$n/total_gy)
+  value = label_percent(accuracy = 1)(females_gy$n/total_gy)
 )
 ```
 
@@ -2535,7 +2569,7 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Man"
+#| title: "Men"
 
 list(
   # icon = "file-medical",
@@ -2546,12 +2580,12 @@ list(
 
 ```{r}
 #| component: valuebox
-#| title: "Woman"
+#| title: "Women"
 
 list(
   # icon = "calendar-week",
   color = "warning",
-  value = label_percent(accuracy = 0.1)(females_su$n/total_su)
+  value = label_percent(accuracy = 1)(females_su$n/total_su)
 )
 ```
 
