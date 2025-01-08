@@ -2822,7 +2822,9 @@ Colombia <- read_csv("C:/CodigoR/interview-dashboard/data/Colombia_ES.txt",
 Peru <- read_csv("C:/CodigoR/interview-dashboard/data/Peru_ES.txt", 
     locale = locale(encoding = "WINDOWS-1252"))
 
-
+Bolivia_ES_full <- read_excel("data/Bolivia_ES.xlsx")
+ind_B <- sequence(nvec=440, from=5, by=4)
+Bolivia_ES <- Bolivia_ES_full[ind_B,] #Filter cada 4 filas
 
 
 # load lexicom
@@ -3216,6 +3218,129 @@ Peru_data_word %>%
 
 ```
 
+```{r}
+#| title: Words in Bolivia 
+#| 
+
+
+docs <- Corpus(VectorSource(Bolivia_ES$TEXT))
+# Convertir a letras minúsculas el texto.
+docs <- tm_map(docs, content_transformer(tolower))
+# Remover números
+docs <- tm_map(docs, removeNumbers)
+# Remover stopwords comunes
+docs <- tm_map(docs, removeWords, stopwords(c("spanish")))
+# docs <- tm_map(docs, removeWords, stopwords(c("english")))
+# docs <- tm_map(docs, removeWords, stopwords(c("portuguese")))
+# docs <- tm_map(docs, removeWords, stopwords(c("dutch")))
+# Remover una palabra en particular.
+# Se especifica las stopwords como un vector de caracteres.
+docs <- tm_map(docs, removeWords, c("wcs", "ramiro", "iphone", "delgado", "beatriz", "anibal", "alfredo", "alfaro", "vez", "bolivia", "existe", "tal")) 
+
+# remover signos de puntuación
+docs <- tm_map(docs, removePunctuation)
+# Eliminar espacios en blanco extras.
+docs <- tm_map(docs, stripWhitespace)
+
+
+#crear matriz documento de términos
+dtm <- TermDocumentMatrix(docs)
+matriz <- as.matrix(dtm)
+
+#############
+# sentences
+char_v_bo <- get_sentences(Bolivia_ES$TEXT)
+method <- "nrc"
+lang <- "spanish"
+Bolivia_sentence_sentim <- as.data.frame(get_sentiment(char_v_bo, method=method, language=lang))
+
+
+# ordenar filas de la matriz en orden descendente
+v <- sort(rowSums(matriz),decreasing=TRUE)
+# convertir a data frame
+Bolivia_data_word <- data.frame(word = names(v),freq=v)
+# mostrar los primeros 10 términos que más se repiten
+# head(d, 10)
+
+
+# ap_td <- tidy(dtm) # make tidy
+
+
+# sentiment 
+Bolivia_data_word$sentiment <- get_sentiment(Bolivia_data_word$word, method=method, language=lang)
+
+# score.sentiment(Bolivia_data_word$word, pos.words, neg.words)
+
+#classify emotion
+class_emo = classify_emotion(Bolivia_data_word$word, algorithm="bayes", prior=0.5)
+#get emotion best fit
+emotion = class_emo[,7]
+# substitute NA's by "unknown"
+emotion[is.na(emotion)] = "unknown"
+# emotion by sentences
+Bolivia_emotion_sentence = classify_emotion(char_v_bo, algorithm="bayes", prior=0.3)[,7]
+
+
+
+# classify polarity
+class_pol = classify_polarity(Bolivia_data_word$word, algorithm="bayes")
+
+# get polarity best fit
+polarity = class_pol[,4]
+
+# data frame with results
+# sent_df = data.frame(text=Bolivia.scores, emotion=emotion, 
+#                      polarity=polarity, stringsAsFactors=FALSE)
+
+#### add to Table
+Bolivia_data_word$emotion <- emotion
+Bolivia_data_word$polarity <- polarity
+
+# add text in sentiment
+Bolivia_data_word <- Bolivia_data_word |> 
+  mutate(sentiment_text = case_when(
+                     sentiment >= 1 ~ "Positive",
+                     sentiment == 0 ~ "Neutral",
+                     sentiment <= -1 ~ "Negative"))
+
+# #sort data frame
+# sent_df = within(sent_df,
+#                  emotion <- factor(emotion, levels=names(sort(table(emotion), decreasing=TRUE))))
+
+
+Bolivia_data_word %>%
+  group_by(polarity) %>%
+  arrange(desc(freq)) |> 
+  slice_head(n =15) %>%
+  mutate(term = reorder(word, freq)) %>%
+  ggplot(aes(freq, word, fill = polarity)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(vars(polarity), scales = "free_y") +
+  labs(x = "Contribution to sentiment", y = NULL)
+
+# 
+# Bolivia_emotion_sentence <- as.data.frame(Bolivia_emotion_sentence)
+# names(Bolivia_emotion_sentence)<- "emotion"
+# 
+# # plot distribution of emotions
+# ggplot(Bolivia_emotion_sentence, aes(x=emotion)) +
+#   geom_bar(aes(y=..count.., fill=emotion)) +
+#   scale_fill_brewer(palette="Dark2") +
+#   labs(x="emotion categories", y="number of words", 
+#        title = "Sentiment Analysis Bolivia\nEmotion in Focus Group",
+#        plot.title = element_text(size=12))
+# 
+# # plot distribution of polarity
+# ggplot(Bolivia_data_word, aes(x=polarity)) +
+#   geom_bar(aes(y=..count.., fill=polarity)) +
+#   scale_fill_brewer(palette="Dark2") +
+#   labs(x="polarity categories", y="number of words",
+#        title = "Sentiment Analysis Bolivia\nPolarity in Focus Group",
+#        plot.title = element_text(size=12))
+# 
+
+```
+
 
 
 ### Row {height="50%" .tabset}
@@ -3273,6 +3398,25 @@ ggplot(Peru_emotion_sentence, aes(x=emotion)) +
 
 
 ```
+
+
+```{r}
+#| title: Emotion Bolivia
+
+Bolivia_emotion_sentence <- as.data.frame(Bolivia_emotion_sentence)
+names(Bolivia_emotion_sentence)<- "emotion"
+
+# plot distribution of emotions
+ggplot(Bolivia_emotion_sentence, aes(x=emotion)) +
+  geom_bar(aes(y=..count.., fill=emotion)) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(x="emotion categories", y="number of words", 
+       title = "Sentiment Analysis Bolivia\nEmotion in Focus Group",
+       plot.title = element_text(size=12))
+
+
+```
+
 
 
 ## Column {width="40%"}
